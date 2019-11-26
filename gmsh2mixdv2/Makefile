@@ -1,7 +1,7 @@
 # INCLUDES=-I../mixdclass
 # CXX=g++-9.2
 CXX=g++
-CXXFLAGS=-O3 $(INCLUDES)
+CXXFLAGS=-O3 -fopenmp
 
 SRC=gmsh2mixdv2.cpp
 OBJ := $(addsuffix .o, $(basename $(SRC)))
@@ -13,7 +13,7 @@ all: $(EXE)
 	$(CXX) $(CXXFLAGS) -c $< -o $@ 
 
 $(EXE): $(OBJ)
-	$(CXX) $(CXXFLAGS) -o $@ $^ -fopenmp
+	$(CXX) $(CXXFLAGS) -o $@ $^ 
 	# cp $@ gmsh2mixd.v2
 
 clean:
