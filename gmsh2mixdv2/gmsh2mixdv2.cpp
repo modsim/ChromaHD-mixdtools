@@ -115,7 +115,7 @@ int boundaryConditions(Mesh &mesh)
 {
 
     //Check all triangles for boundary nodes and interface(doubled) nodes
-    for(typename std::map<std::vector<int>, Triangle *>::iterator it_tri=mesh.trimap.begin(); it_tri!=mesh.trimap.end(); ++it_tri)
+    for(std::map<std::vector<int>, Triangle *>::iterator it_tri=mesh.trimap.begin(); it_tri!=mesh.trimap.end(); ++it_tri)
     {
         for(int i=0; i<it_tri->second->nen; i++)
         {
@@ -132,7 +132,7 @@ int boundaryConditions(Mesh &mesh)
     //Check all tets for boundary nodes
     std::cout << "matching tets and tris... " << std::flush;
     #pragma omp parallel for shared(mesh)
-    for(typename std::vector<Tetrahedron *>::iterator it_tet=mesh.tets.begin(); it_tet!=mesh.tets.end(); ++it_tet)
+    for(std::vector<Tetrahedron *>::iterator it_tet=mesh.tets.begin(); it_tet!=mesh.tets.end(); ++it_tet)
     {
         int n_bound_nodes = 0;
         for(int i = 0; i< (*it_tet)->nen; i++)
@@ -166,7 +166,7 @@ int boundaryConditions(Mesh &mesh)
 
                 /* auto it_tri = std::find_if(mesh.tris.begin(), mesh.tris.end(), [&faces,&f](Triangle * t){ return t->sortedNodes==faces[f]; }); */
 
-                typename std::map<std::vector<int>,Triangle*>::iterator it_tri = mesh.trimap.find(faces[f]);
+                std::map<std::vector<int>,Triangle*>::iterator it_tri = mesh.trimap.find(faces[f]);
 
                 //if tri is found, set boundary ID and adjacent tets
                 if(it_tri != mesh.trimap.end())
@@ -213,7 +213,7 @@ int boundaryConditions(Mesh &mesh)
         std::cout << "now doubling nodes..." << std::flush;
 
         // iterate over the tetras to change their connectivity to doubled boundary nodes
-        for (typename std::vector<Tetrahedron *>::iterator it_tet=mesh.tets.begin(); it_tet!=mesh.tets.end(); ++it_tet)
+        for (std::vector<Tetrahedron *>::iterator it_tet=mesh.tets.begin(); it_tet!=mesh.tets.end(); ++it_tet)
         {
             // should this tetra be connected to doubled nodes?
             if( (*it_tet)->matID == domainOfDoubledNodes)
@@ -238,7 +238,7 @@ int boundaryConditions(Mesh &mesh)
     if (mesh.order==2)
     {
         // iterate over the tetras to change the node order to match xns
-        for (typename std::vector<Tetrahedron *>::iterator it_tet=mesh.tets.begin(); it_tet!=mesh.tets.end(); ++it_tet)
+        for (std::vector<Tetrahedron *>::iterator it_tet=mesh.tets.begin(); it_tet!=mesh.tets.end(); ++it_tet)
         {
             std::swap((*it_tet)->nodes[8], (*it_tet)->nodes[9]);
         }

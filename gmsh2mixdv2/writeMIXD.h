@@ -73,7 +73,7 @@ void writeMIEN(Mesh &mesh)
     std::ofstream mien;
     mien.open("mien", std::ios::out | std::ios::binary);
 
-    for (typename std::vector<Tetrahedron*>::iterator it_tet=mesh.tets.begin(); it_tet!=mesh.tets.end(); ++it_tet)
+    for (std::vector<Tetrahedron*>::iterator it_tet=mesh.tets.begin(); it_tet!=mesh.tets.end(); ++it_tet)
     {
         int nen = (*it_tet)->nen;
 
@@ -107,7 +107,7 @@ void writeMMAT(Mesh &mesh)
     mmat.open("mmat", std::ios::out | std::ios::binary);
 
 
-    for (typename std::vector<Tetrahedron*>::iterator it_tet=mesh.tets.begin(); it_tet!=mesh.tets.end(); ++it_tet)
+    for (std::vector<Tetrahedron*>::iterator it_tet=mesh.tets.begin(); it_tet!=mesh.tets.end(); ++it_tet)
     {
         int matID = (*it_tet)->matID;
         int tmp = boost::endian::native_to_big(matID);
@@ -226,7 +226,7 @@ void writeMTBLDUAL(Mesh &mesh)
     std::fstream mtbldual;
     mtbldual.open("mtbl.dual", std::ios::out | std::ios::binary);
 
-    for (typename std::vector<Tetrahedron*>::iterator it_tet=mesh.tets.begin(); it_tet!=mesh.tets.end(); ++it_tet)
+    for (std::vector<Tetrahedron*>::iterator it_tet=mesh.tets.begin(); it_tet!=mesh.tets.end(); ++it_tet)
     {
 
         /* int nbtet[4]; */
@@ -267,7 +267,7 @@ void writeMRNG(Mesh &mesh)
     std::fstream mrng;
     mrng.open("mrng", std::ios::out | std::ios::binary);
 
-    for (typename std::vector<Tetrahedron *>::iterator it_tet=mesh.tets.begin(); it_tet!=mesh.tets.end(); ++it_tet)
+    for (std::vector<Tetrahedron *>::iterator it_tet=mesh.tets.begin(); it_tet!=mesh.tets.end(); ++it_tet)
     {
         for (int i=0; i<4 ; i++)
         {
