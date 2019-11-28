@@ -3,9 +3,9 @@
 CXX=g++
 CXXFLAGS=-O3 -fopenmp
 
-SRC=gmsh2mixdv2.cpp
+SRC=gmsh2mixdv2.cpp endian.cpp
 OBJ := $(addsuffix .o, $(basename $(SRC)))
-EXE=$(basename $(SRC))
+EXE=gmsh2mixdv2
 
 all: $(EXE)
 

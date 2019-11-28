@@ -6,42 +6,44 @@
 #include <fstream>
 
 /* #include "endian/include/boost/endian/conversion.hpp" */
-#include <boost/endian/conversion.hpp>
-#include <boost/endian/buffers.hpp>
+/* #include <boost/endian/conversion.hpp> */
+/* #include <boost/endian/buffers.hpp> */
 /* #include "endian/include/boost/endian/buffers.hpp" */
 
+#include "endian.h"
 #include "elements.h"
 #include "node.h"
 #include "mesh.h"
 
 //TODO: make sure endianness is ALWAYS big instead of reversing it.
+//TODO: convert h to cpp files (previous template design required header files, not anymore)
 
-bool isBigEndian()
-{
-    short word = 0x4321;
-    if ((* (char*) & word) != 0x21) return true;
-    else      return false;
-}
+/* bool isBigEndian() */
+/* { */
+/*     short word = 0x4321; */
+/*     if ((* (char*) & word) != 0x21) return true; */
+/*     else      return false; */
+/* } */
 
-void swapbytes(char *array, int nelem, int elsize)
-{
-    int sizet, sizem, i, j;
-    char *bytea, *byteb;
-    sizet = elsize;
-    sizem = sizet - 1;
-    bytea = (char*)malloc(sizet);
-    byteb = (char*)malloc(sizet);
+/* void swapbytes(char *array, int nelem, int elsize) */
+/* { */
+/*     int sizet, sizem, i, j; */
+/*     char *bytea, *byteb; */
+/*     sizet = elsize; */
+/*     sizem = sizet - 1; */
+/*     bytea = (char*)malloc(sizet); */
+/*     byteb = (char*)malloc(sizet); */
 
-    for (i=0; i<nelem; i++)
-    {
-        memcpy((void *)bytea, (void *)(array+i*sizet), sizet);
-        for (j = 0; j < sizet; j++) byteb[j] = bytea[sizem - j];
-            memcpy((void *)(array+i*sizet), (void *)byteb, sizet);
-    }
+/*     for (i=0; i<nelem; i++) */
+/*     { */
+/*         memcpy((void *)bytea, (void *)(array+i*sizet), sizet); */
+/*         for (j = 0; j < sizet; j++) byteb[j] = bytea[sizem - j]; */
+/*             memcpy((void *)(array+i*sizet), (void *)byteb, sizet); */
+/*     } */
 
-    free(bytea);
-    free(byteb);
-}
+/*     free(bytea); */
+/*     free(byteb); */
+/* } */
 
 void writeMINF(Mesh &mesh)
 {
@@ -72,25 +74,19 @@ void writeMIEN(Mesh &mesh)
     std::cout << "writing mien... " << std::flush;
     std::ofstream mien;
     mien.open("mien", std::ios::out | std::ios::binary);
+    char *buf = (char*) malloc(4);
 
     for (std::vector<Tetrahedron*>::iterator it_tet=mesh.tets.begin(); it_tet!=mesh.tets.end(); ++it_tet)
     {
         int nen = (*it_tet)->nen;
 
-        /* char *buf = (char*) malloc(4); */
         for (int i=0; i<nen; i++)
         {
-            int tmp = boost::endian::native_to_big((*it_tet)->nodes[i]);
-            mien.write(reinterpret_cast<char*>(&tmp), sizeof(tmp));
+            /* int tmp = boost::endian::native_to_big((*it_tet)->nodes[i]); */
+            /* mien.write(reinterpret_cast<char*>(&tmp), sizeof(tmp)); */
 
-            /* memcpy(buf, &((*it_tet)->nodes[i]), 4); */
-
-            /* if(!isBigEndian())  // swap bytes if neccessary */
-            /* { */
-            /*     swapbytes(buf, 1, 4); */
-            /* } */
-
-            /* mien.write(buf, sizeof(buf)); */
+            endianHandler((*it_tet)->nodes[i], buf);
+            mien.write(buf, 4);
 
         }
     }
@@ -105,13 +101,17 @@ void writeMMAT(Mesh &mesh)
     std::cout << "writing mmat... " << std::flush;
     std::fstream mmat;
     mmat.open("mmat", std::ios::out | std::ios::binary);
+    char *buf = (char*) malloc(4);
 
 
     for (std::vector<Tetrahedron*>::iterator it_tet=mesh.tets.begin(); it_tet!=mesh.tets.end(); ++it_tet)
     {
         int matID = (*it_tet)->matID;
-        int tmp = boost::endian::native_to_big(matID);
-        mmat.write(reinterpret_cast<char*>(&tmp), sizeof(tmp));
+        /* int tmp = boost::endian::native_to_big(matID); */
+        /* mmat.write(reinterpret_cast<char*>(&tmp), sizeof(tmp)); */
+
+        endianHandler(matID, buf);
+        mmat.write(buf, 4);
     }
 
     mmat.close();
@@ -183,6 +183,7 @@ void writeMTBL(Mesh &mesh)
     std::cout << "writing mtbl... " << std::flush;
     std::fstream mtbl;
     mtbl.open("mtbl", std::ios::out | std::ios::binary);
+    char * buf = (char *) malloc(4);
 
     //TODO:if(entity_dbl != -1)
     //int nloops = (generate_st)? 2 : 1;
@@ -203,16 +204,23 @@ void writeMTBL(Mesh &mesh)
 
         partner_node += loop*(n_nodes + mesh.dblBoundaryNodes.size());
 
-        int tmp = boost::endian::native_to_big(partner_node);
-        mtbl.write(reinterpret_cast<char*>(&tmp), sizeof(tmp));
+        /* int tmp = boost::endian::native_to_big(partner_node); */
+        /* mtbl.write(reinterpret_cast<char*>(&tmp), sizeof(tmp)); */
+
+        endianHandler(partner_node, buf);
+        mtbl.write(buf, 4);
 
     }
 
     for(std::set<int>::iterator it=mesh.dblBoundaryNodes.begin(); it!=mesh.dblBoundaryNodes.end(); ++it)
     {
         partner_node = *it + loop*(n_nodes + mesh.dblBoundaryNodes.size());
-        int tmp = boost::endian::native_to_big(partner_node);
-        mtbl.write(reinterpret_cast<char*>(&tmp), sizeof(tmp));
+        /* int tmp = boost::endian::native_to_big(partner_node); */
+        /* mtbl.write(reinterpret_cast<char*>(&tmp), sizeof(tmp)); */
+
+        endianHandler(partner_node, buf);
+        mtbl.write(buf, 4);
+
     }
 
     mtbl.close();
@@ -225,6 +233,7 @@ void writeMTBLDUAL(Mesh &mesh)
     std::cout << "writing mtbldual... " << std::flush;
     std::fstream mtbldual;
     mtbldual.open("mtbl.dual", std::ios::out | std::ios::binary);
+    char * buf = (char *) malloc(4);
 
     for (std::vector<Tetrahedron*>::iterator it_tet=mesh.tets.begin(); it_tet!=mesh.tets.end(); ++it_tet)
     {
@@ -241,17 +250,12 @@ void writeMTBLDUAL(Mesh &mesh)
             else
                 nbtet = 0;
 
-            int tmp = boost::endian::native_to_big(nbtet);
-            mtbldual.write(reinterpret_cast<char*>(&tmp), sizeof(tmp));
+            /* int tmp = boost::endian::native_to_big(nbtet); */
+            /* mtbldual.write(reinterpret_cast<char*>(&tmp), sizeof(tmp)); */
+
+            endianHandler(nbtet, buf);
+            mtbldual.write(buf, 4);
         }
-
-
-        /* memcpy(ef_buf, nbtet, 4*4); */
-        /* if(!isBigEndian())  // swap bytes if neccessary */
-        /* { */
-        /*     swapbytes(ef_buf, 4, 4); */
-        /* } */
-        /* mtbldual.write(ef_buf,sizeof(ef_buf)); */
 
     }
 
@@ -266,14 +270,18 @@ void writeMRNG(Mesh &mesh)
     std::cout << "writing mrng... " << std::flush;
     std::fstream mrng;
     mrng.open("mrng", std::ios::out | std::ios::binary);
+    char * buf = (char *) malloc(4);
 
     for (std::vector<Tetrahedron *>::iterator it_tet=mesh.tets.begin(); it_tet!=mesh.tets.end(); ++it_tet)
     {
         for (int i=0; i<4 ; i++)
         {
             int bID = (*it_tet)->bID[i];
-            int tmp = boost::endian::native_to_big(bID);
-            mrng.write(reinterpret_cast<char*>(&tmp), sizeof(tmp));
+            /* int tmp = boost::endian::native_to_big(bID); */
+            /* mrng.write(reinterpret_cast<char*>(&tmp), sizeof(tmp)); */
+
+            endianHandler(bID, buf);
+            mrng.write(buf, 4);
         }
     }
 
