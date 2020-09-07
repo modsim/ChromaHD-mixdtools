@@ -87,47 +87,29 @@ void postProcessor::vtkVisualization(int irec)
          scalars[idf]->SetName(dummy.c_str());
          for(int inl=0; inl<nnl; inl++)
              scalars[idf]->InsertNextValue(dataL[inl*ndf + idf]);
-             /* scalars[idf]->InsertNextValue(dataG[nodeLToG[inl]*ndf + idf]); */
-             /* scalars[idf]->InsertNextValue(mesh->getLNode(inl)->getCoord(idf)); */
          unsGrid->GetPointData()->AddArray(scalars[idf]);
          unsGrid->GetPointData()->SetActiveScalars(dummy.c_str());
      }
 
 
-     //Whatever collected in unstructured grid above is written to the "Title_mype.vtu" file below.
-     vtkSmartPointer<vtkXMLUnstructuredGridWriter> writer = vtkSmartPointer<vtkXMLUnstructuredGridWriter>::New();
+     // Now we write the "Title.pvtu" file which contains the informtaiton about other files.
+     // Can be used to add more prefixes to the piece filenames. Folders/subfolders and such.
+     // Mostly unnecessary
+     /* auto pwriter = vtkSmartPointer<LDEMVTKXMLPUnstructuredDataWriter>::New(); */
+
+     vtkSmartPointer<vtkXMLPUnstructuredGridWriter> pwriter = vtkSmartPointer<vtkXMLPUnstructuredGridWriter>::New();
      dummy = settings->getTitle();
      dummy.append("_");
      dummy.append(to_string(irec));
-     dummy.append("_");
-     dummy.append(strMype);
-     dummy.append(".vtu");
-     cout << dummy << endl;
-     writer->SetFileName(dummy.c_str());
-     writer->SetInputData(unsGrid);
-     writer->Write();
+     dummy.append(".pvtu");
+     pwriter->SetFileName(dummy.c_str());
+     pwriter->SetNumberOfPieces(npes);
+     pwriter->SetStartPiece(mype);
+     pwriter->SetEndPiece(mype);
+     pwriter->SetInputData(unsGrid);
+     /* pwriter->Write(); */
+     pwriter->Update();
 
-     // Now we write the "Title.pvtu" file which contains the informtaiton about other files.
-     if(mype == 0)
-     {
-         // Can be used to add more prefixes to the piece filenames.
-         // Mostly unnecessary
-         /* auto pwriter = vtkSmartPointer<LDEMVTKXMLPUnstructuredDataWriter>::New(); */
-
-         vtkSmartPointer<vtkXMLPUnstructuredGridWriter> pwriter = vtkSmartPointer<vtkXMLPUnstructuredGridWriter>::New();
-         dummy = settings->getTitle();
-         dummy.append("_");
-         dummy.append(to_string(irec));
-         dummy.append(".pvtu");
-         pwriter->SetFileName(dummy.c_str());
-         pwriter->SetNumberOfPieces(npes);
-         #if VTK_MAJOR_VERSION <= 5
-             pwriter->SetInput(unsGrid);
-         #else
-             pwriter->SetInputData(unsGrid);
-         #endif
-         pwriter->Write();
-     }
 
      return;
  }
