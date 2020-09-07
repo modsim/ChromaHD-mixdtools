@@ -67,8 +67,26 @@ void tetMesh::readMeshFiles(inputSettings* settings)
         MPI_Finalize();
         exit(0);
     }
-    file >> dummy >> nn;
-    file >> dummy >> ne;
+
+    string lineString;
+    string dummyString;
+
+    while (!file.eof())
+    {
+        // Get a line and store in lineString
+        getline(file, lineString, '\n');
+        // If the first character of the line is not a '#'
+        if (lineString.c_str()[0] != '#')
+        {
+            istringstream iss(lineString);
+            iss >> dummyString;
+            if(dummyString == "nn")
+                iss >> nn;
+            else if(dummyString == "ne")
+                iss >> ne;
+        }
+    }
+
     if (mype==0)
     {
         cout << "> Number of mesh elements : " << ne << endl;
