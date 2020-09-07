@@ -6,7 +6,7 @@ The code is relatively crude, but functional.
 
 # Compilation 
 
-Prerequisites: `VTK, MPI`
+Prerequisites: `VTK (with MPI support), MPI`
 
 ```
 mkdir build
@@ -18,8 +18,7 @@ make
 `mpirun -np 4 settings.in`
 
 # Notes
-- [PVTU generated with MPI doesn't contain all the pieces](https://github.com/libMesh/libmesh/issues/1179)
-- PVTU can be manually modified to add remaining pieces. Do a little vim-fu.
+- [VTK 7.1 Update and VTK with MPI](https://github.com/libMesh/libmesh/issues/1179)
 - Works only on semidiscrete meshes
 - minf file nn/ne ordering matters 
 - Timestepping implemented (nrec)
@@ -32,8 +31,8 @@ make
 - [ ] Write out to subfolders
 - [ ] Include simple tests
 - [ ] General restructuring & improvements
-- [ ] Better comments and documentation for modified files
+- [ ] Better comments and documentation 
 - [ ] Fix minf file read to be order agnostic
 - [ ] Allow naming scalar quantities
-- [ ] Fix MPI PVTU with all pieces
-- [ ] Test and ensure that data splitting happens properly. I seem to recall tiny (possibly trivial) issues in the algorithm back when I was assisting corrections.
+- [X] Fix MPI PVTU with all pieces
+- [ ] Test and ensure that data splitting happens properly. I seem to recall tiny (possibly trivial) issues in the mnc/nnc algorithm back when I was assisting corrections.
