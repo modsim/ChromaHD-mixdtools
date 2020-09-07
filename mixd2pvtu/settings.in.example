@@ -1,0 +1,14 @@
+#Title of the simulation
+title test-case 
+
+# Mesh files
+minf minf 
+mxyz mxyz
+mien mien
+mrng mrng
+
+# Data file and information
+data data.out
+ndf 4               # number of degrees of freedom (variables in file)
+nrec 2              # number of records (timesteps)
+nrecstride 1        # nrec stride length

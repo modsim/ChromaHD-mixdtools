@@ -1,0 +1,133 @@
+#include "postProcessor.h"
+
+/***************************************************************************************************
+preProcessorControl
+**************************************************************************************************/
+
+void postProcessor::postProcessorControl(inputSettings* argSettings, tetMesh* argMesh, int irec)
+{
+    int mype, npes;             // my processor rank and total number of processors
+    MPI_Comm_rank(MPI_COMM_WORLD, &mype);
+    MPI_Comm_size(MPI_COMM_WORLD, &npes);
+    mesh = argMesh;
+    settings = argSettings;
+
+    if (mype==0) cout << endl << "================ POST-PROCESSING =================" << endl;
+
+    vtkVisualization(irec);
+
+    return;
+}
+
+/***************************************************************************************************
+// Main visualization function
+***************************************************************************************************/
+void postProcessor::vtkVisualization(int irec)
+{
+    int nn  = mesh->getNn();
+    int nnc = mesh->getNnc();
+    int nnl = mesh->getNnl();
+    int mnc = mesh->getMnc();
+    int ne  = mesh->getNe();
+    int nec = mesh->getNec();
+    int mec = mesh->getMec();
+    int ndf = mesh->getNdf();
+
+    double * dataL = mesh->getDataL();
+    double * dataG = mesh->getDataG();
+
+
+    int * nodeLToG = mesh->getNodeLToG();
+
+     int mype, npes;             // my processor rank and total number of processors
+
+     MPI_Comm_rank(MPI_COMM_WORLD, &mype);
+     MPI_Comm_size(MPI_COMM_WORLD, &npes);
+     ostringstream int2str;
+     int2str << mype;
+     string strMype = int2str.str();
+     string dummy;
+
+
+     // VTK Double Array
+     vtkSmartPointer<vtkDoubleArray> pcoords = vtkSmartPointer<vtkDoubleArray>::New();
+     pcoords->SetNumberOfComponents(nsd);
+     pcoords->SetNumberOfTuples(nnl);
+
+
+     //vtkDoubleArray type pcoords is filled with the data in meshPoints.
+     for (int i=0; i<nnl; i++)
+         pcoords->SetTuple3(i,mesh->getLNode(i)->getX(),mesh->getLNode(i)->getY(),mesh->getLNode(i)->getZ());
+
+     //vtkPoints type outputPoints is filled with the data in pcoords.
+     vtkSmartPointer<vtkPoints> outputPoints = vtkSmartPointer<vtkPoints>::New();
+     outputPoints->SetData(pcoords);
+
+
+     //Connectivity is written to vtkCellArray type outputCells
+     vtkSmartPointer<vtkCellArray> connectivity = vtkSmartPointer<vtkCellArray>::New();
+     for(int i=0; i<nec; i++)
+     {
+         connectivity->InsertNextCell(nen);
+         for(int j=0; j<nen; j++)
+             connectivity->InsertCellPoint(mesh->getElem(i)->getLConn(j));
+     }
+
+     vtkSmartPointer<vtkUnstructuredGrid> unsGrid = vtkSmartPointer<vtkUnstructuredGrid>::New();
+     unsGrid->SetPoints(outputPoints);
+     unsGrid->SetCells(10,connectivity);
+
+
+     vector<vtkSmartPointer<vtkDoubleArray>> scalars(ndf);
+     for(int idf=0; idf < ndf ; idf++)
+     {
+         scalars[idf] = vtkSmartPointer<vtkDoubleArray>::New();
+         dummy = "scalar_";
+         dummy.append(to_string(idf));
+         scalars[idf]->SetName(dummy.c_str());
+         for(int inl=0; inl<nnl; inl++)
+             scalars[idf]->InsertNextValue(dataL[inl*ndf + idf]);
+             /* scalars[idf]->InsertNextValue(dataG[nodeLToG[inl]*ndf + idf]); */
+             /* scalars[idf]->InsertNextValue(mesh->getLNode(inl)->getCoord(idf)); */
+         unsGrid->GetPointData()->AddArray(scalars[idf]);
+         unsGrid->GetPointData()->SetActiveScalars(dummy.c_str());
+     }
+
+
+     //Whatever collected in unstructured grid above is written to the "Title_mype.vtu" file below.
+     vtkSmartPointer<vtkXMLUnstructuredGridWriter> writer = vtkSmartPointer<vtkXMLUnstructuredGridWriter>::New();
+     dummy = settings->getTitle();
+     dummy.append("_");
+     dummy.append(to_string(irec));
+     dummy.append("_");
+     dummy.append(strMype);
+     dummy.append(".vtu");
+     cout << dummy << endl;
+     writer->SetFileName(dummy.c_str());
+     writer->SetInputData(unsGrid);
+     writer->Write();
+
+     // Now we write the "Title.pvtu" file which contains the informtaiton about other files.
+     if(mype == 0)
+     {
+         // Can be used to add more prefixes to the piece filenames.
+         // Mostly unnecessary
+         /* auto pwriter = vtkSmartPointer<LDEMVTKXMLPUnstructuredDataWriter>::New(); */
+
+         vtkSmartPointer<vtkXMLPUnstructuredGridWriter> pwriter = vtkSmartPointer<vtkXMLPUnstructuredGridWriter>::New();
+         dummy = settings->getTitle();
+         dummy.append("_");
+         dummy.append(to_string(irec));
+         dummy.append(".pvtu");
+         pwriter->SetFileName(dummy.c_str());
+         pwriter->SetNumberOfPieces(npes);
+         #if VTK_MAJOR_VERSION <= 5
+             pwriter->SetInput(unsGrid);
+         #else
+             pwriter->SetInputData(unsGrid);
+         #endif
+         pwriter->Write();
+     }
+
+     return;
+ }
