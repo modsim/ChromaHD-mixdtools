@@ -10,9 +10,12 @@ add_compile_options(-O3 -g)
 
 find_package(VTK REQUIRED)
 include(${VTK_USE_FILE})
+
 # set(VTK_DIR "/usr/lib64/vtk")
 # set(LDFLAGS "-Wl,--copy-dt-needed-entries")
 # set(VTK_DIR "/usr/include/vtk-7.1")
+
+set(CMAKE_INSTALL_PREFIX "~/local")
 
 include_directories(.)
 file(GLOB SOURCES "*.cpp")
@@ -23,3 +26,4 @@ target_link_libraries(mixd2pvtu ${MPI_C_LIBRARIES})
 target_link_libraries(mixd2pvtu ${MPI_CXX_LIBRARIES})
 target_link_libraries(mixd2pvtu ${VTK_LIBRARIES})
 
+install (TARGETS mixd2pvtu DESTINATION ${CMAKE_INSTALL_PREFIX}/bin)
