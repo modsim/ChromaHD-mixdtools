@@ -26,6 +26,7 @@ class inputSettings
         int       ndf; // number of scalar values
         int       nrec;
         int       nrecstride;
+        int       nrecoffset;
         double    dt;          // time step size
 
         // METHODS
@@ -51,6 +52,7 @@ class inputSettings
         int    getNdf()        {return ndf;};
         int    getNrec()       {return nrec;};
         int    getNrecstride() {return nrecstride;};
+        int    getNrecoffset() {return nrecoffset;};
         double getDt()         {return dt;};
 
         //INTERFACE METHOD

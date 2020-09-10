@@ -51,6 +51,7 @@ void tetMesh::readMeshFiles(inputSettings* settings)
     /// these guys are used for parallel file input
     MPI_Status status;
     MPI_Offset offset;           // offset from the beginning of file for parallel file read
+    MPI_Offset size;
     MPI_Datatype mxyzftype,mienftype,mrngftype,dataftype;        // mpi datatype used in parallel file read
     MPI_File fileptr;            // file pointer for parallel file read
 
@@ -141,6 +142,19 @@ void tetMesh::readMeshFiles(inputSettings* settings)
     MPI_Type_contiguous(nnc*nsd, MPI_DOUBLE, &mxyzftype);
     MPI_Type_commit(&mxyzftype);
     MPI_File_open(MPI_COMM_WORLD, writable, MPI_MODE_RDONLY, MPI_INFO_NULL, &fileptr);
+    MPI_File_get_size(fileptr, &size);
+
+    cout << size << "    " << nn * nsd * sizeof(double);
+    if (size != nn * nsd * sizeof(double))
+    {
+        MPI_File_close(&fileptr);
+        MPI_Barrier(MPI_COMM_WORLD);
+
+        if(mype == 0) cout << "ERROR: Overstepping file limits: Ciao:)"  << endl;
+        MPI_Finalize();
+        exit(-1);
+    }
+
     MPI_File_set_view(fileptr, offset, MPI_DOUBLE, mxyzftype, "native", MPI_INFO_NULL);
     readStream = new char [nsd*nnc*sizeof(double)];
     MPI_File_read(fileptr,readStream, nsd*nnc, MPI_DOUBLE, &status);
@@ -173,6 +187,19 @@ void tetMesh::readMeshFiles(inputSettings* settings)
     MPI_Type_contiguous(nec*nen, MPI_INT, &mienftype);
     MPI_Type_commit(&mienftype);
     MPI_File_open(MPI_COMM_WORLD, writable, MPI_MODE_RDONLY, MPI_INFO_NULL, &fileptr);
+    MPI_File_get_size(fileptr, &size);
+
+    cout << size << "    " << ne * nen * sizeof(int);
+    if (size != ne * nen * sizeof(int))
+    {
+        MPI_File_close(&fileptr);
+        MPI_Barrier(MPI_COMM_WORLD);
+
+        if(mype == 0) cout << "ERROR: Overstepping file limits: Ciao:)"  << endl;
+        MPI_Finalize();
+        exit(-1);
+    }
+
     MPI_File_set_view(fileptr, offset, MPI_INT, mienftype, "native", MPI_INFO_NULL);
     readStream = new char [nen*nec*sizeof(int)];
     MPI_File_read(fileptr, readStream, nen*nec, MPI_INT, &status);
@@ -229,15 +256,18 @@ void tetMesh::readDataFile(inputSettings* settings, int irec)
     int FSV;
 
     int nrecstride = settings->getNrecstride();
+    int nrecoffset = settings->getNrecoffset();
+
     /* offset = mype*ndf*mnc*sizeof(double); */
-    offset = mype*ndf*mnc*sizeof(double) + (irec*nrecstride)*ndf*nn*sizeof(double);
+
+    offset = mype*ndf*mnc*sizeof(double) + (irec*nrecstride + nrecoffset)*ndf*nn*sizeof(double);
 
     MPI_Type_contiguous(nnc*ndf, MPI_DOUBLE, &dataftype);
     MPI_Type_commit(&dataftype);
 
     MPI_File_open(MPI_COMM_WORLD, writable, MPI_MODE_RDONLY, MPI_INFO_NULL, &fileptr);
     MPI_File_get_size(fileptr, &size);
-    /* cout << "Offset: " << offset << "    Size: " << size << endl; */
+
     if (offset >= size)
     {
         MPI_File_close(&fileptr);

@@ -36,6 +36,8 @@ make
 - [ ] Allow naming scalar quantities
 - [X] Fix MPI PVTU with all pieces
 - [ ] Test and ensure that data splitting happens properly. I seem to recall tiny (possibly trivial) issues in the mnc/nnc algorithm back when I was assisting corrections.
-- [ ] Implement make install
-- [ ] check that installed bin works fine
-- [ ] Implement filesize checks. 
+- [X] Implement make install
+- [X] check that installed bin works fine
+- [X] Implement filesize checks. 
+- [ ] Implement spacetime mesh support
+- [ ] Implement nrecoffset 
