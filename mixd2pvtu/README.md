@@ -32,6 +32,7 @@ make
 - [ ] Include simple tests
 - [ ] General restructuring & improvements
 - [ ] Better comments and documentation 
+- [X] Clean STDOUT
 - [X] Fix minf file read to be order agnostic
 - [ ] Allow naming scalar quantities
 - [X] Fix MPI PVTU with all pieces
@@ -40,4 +41,4 @@ make
 - [X] check that installed bin works fine
 - [X] Implement filesize checks. 
 - [ ] Implement spacetime mesh support
-- [ ] Implement nrecoffset 
+- [X] Implement nrecoffset 

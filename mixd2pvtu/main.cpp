@@ -39,6 +39,8 @@ int main(int argc, char **argv) {
     settings->prepareSettings();
     mesh->prepareMesh(settings);
 
+    if (mype==0) cout << endl << "================ POST-PROCESSING =================" << endl;
+
     int nrec = settings->getNrec();
     for (int irec=0; irec<nrec; irec++)
     {
@@ -47,6 +49,7 @@ int main(int argc, char **argv) {
     }
 
 
+    if (mype==0) cout << endl << "====================== END =======================" << endl;
     if(mype==0) cout << "Elapsed time is " << fixed << MPI_Wtime()-starttime << endl;
 
     // Cleanup

@@ -113,7 +113,7 @@ void tetMesh::readMeshFiles(inputSettings* settings)
     if (nnc < 0)
         nnc = 0;
 
-    cout << "mype:" << mype << " nnc:" << nnc << " mnc:" << mnc << " nec:" << nec << endl;
+    //cout << "mype:" << mype << " nnc:" << nnc << " mnc:" << mnc << " nec:" << nec << endl;
 
     ndf = settings->getNdf();
 
@@ -144,7 +144,6 @@ void tetMesh::readMeshFiles(inputSettings* settings)
     MPI_File_open(MPI_COMM_WORLD, writable, MPI_MODE_RDONLY, MPI_INFO_NULL, &fileptr);
     MPI_File_get_size(fileptr, &size);
 
-    cout << size << "    " << nn * nsd * sizeof(double);
     if (size != nn * nsd * sizeof(double))
     {
         MPI_File_close(&fileptr);
@@ -189,7 +188,6 @@ void tetMesh::readMeshFiles(inputSettings* settings)
     MPI_File_open(MPI_COMM_WORLD, writable, MPI_MODE_RDONLY, MPI_INFO_NULL, &fileptr);
     MPI_File_get_size(fileptr, &size);
 
-    cout << size << "    " << ne * nen * sizeof(int);
     if (size != ne * nen * sizeof(int))
     {
         MPI_File_close(&fileptr);
@@ -294,7 +292,7 @@ void tetMesh::readDataFile(inputSettings* settings, int irec)
         }
     }
 
-    if (mype==0) cout << "> File read complete: " << dummy << endl;
+    //if (mype==0) cout << "> File read complete: " << dummy << endl;
 
     MPI_File_close(&fileptr);
     MPI_Barrier(MPI_COMM_WORLD);

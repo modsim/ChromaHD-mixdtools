@@ -12,7 +12,7 @@ void postProcessor::postProcessorControl(inputSettings* argSettings, tetMesh* ar
     mesh = argMesh;
     settings = argSettings;
 
-    if (mype==0) cout << endl << "================ POST-PROCESSING =================" << endl;
+    if (mype==0) cout << "Writing irec: " << irec << endl;
 
     vtkVisualization(irec);
 
