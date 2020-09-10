@@ -1,4 +1,66 @@
 #include "tet.h"
+#include <vector>
+#include <iterator>
+
+template <class T, class U>
+void readFromFile(T& f1, U& variable)
+{
+    f1.read((char*) &variable, sizeof(variable));
+}
+
+int tetMesh::isSemiDiscrete(const char* filename, int nn)
+{
+
+    // if nn is not even, it is already semi-discrete
+    if (nn % 2 != 0) return 0;
+
+    // open the file:
+    std::ifstream file(filename, std::ios::binary);
+
+    // Stop eating new lines in binary mode!!!
+    file.unsetf(std::ios::skipws);
+
+    // get its size:
+    std::streampos fileSize;
+
+    file.seekg(0, std::ios::end);
+    fileSize = file.tellg();
+    file.seekg(0, std::ios::beg);
+
+    std::streampos halfSize = fileSize/2;
+
+    vector<double> startVal(nsd), midVal(nsd);
+    char dummychar[sizeof(double)];
+
+    for (int isd=0; isd < nsd; isd++)
+    {
+        readFromFile(file, dummychar);
+        swapBytes(dummychar, 1, sizeof(double));
+        startVal.push_back(*((double*)dummychar));
+    }
+
+    file.seekg(halfSize, std::ios::beg);
+
+    for (int isd=0; isd < nsd; isd++)
+    {
+        readFromFile(file, dummychar);
+        swapBytes(dummychar, 1, sizeof(double));
+        midVal.push_back(*((double*)dummychar));
+    }
+
+    if (startVal == midVal)
+    {
+        cout << "> Spacetime mesh provided. Acting appropriately" << endl;
+        return -1;
+    }
+    else
+    {
+        return 0;
+    }
+
+}
+
+
 
 /***************************************************************************************************
 void preProcessor::prepareMesh()
@@ -88,6 +150,18 @@ void tetMesh::readMeshFiles(inputSettings* settings)
         }
     }
 
+    // TEST for spacetime or semi-discrete mesh
+    if (mype == 0)
+    {
+        int sd = isSemiDiscrete(settings->getMxyzFile().c_str(), nn);
+
+        if (sd != 0)
+        {
+            nn = nn/2;
+        }
+    }
+
+
     if (mype==0)
     {
         cout << "> Number of mesh elements : " << ne << endl;
@@ -144,12 +218,12 @@ void tetMesh::readMeshFiles(inputSettings* settings)
     MPI_File_open(MPI_COMM_WORLD, writable, MPI_MODE_RDONLY, MPI_INFO_NULL, &fileptr);
     MPI_File_get_size(fileptr, &size);
 
-    if (size != nn * nsd * sizeof(double))
+    if (size < nn * nsd * sizeof(double))
     {
         MPI_File_close(&fileptr);
         MPI_Barrier(MPI_COMM_WORLD);
 
-        if(mype == 0) cout << "ERROR: Overstepping file limits: Ciao:)"  << endl;
+        if(mype == 0) cout << "ERROR: MXYZ file is smaller than expected."  << endl;
         MPI_Finalize();
         exit(-1);
     }
@@ -188,12 +262,12 @@ void tetMesh::readMeshFiles(inputSettings* settings)
     MPI_File_open(MPI_COMM_WORLD, writable, MPI_MODE_RDONLY, MPI_INFO_NULL, &fileptr);
     MPI_File_get_size(fileptr, &size);
 
-    if (size != ne * nen * sizeof(int))
+    if (size < ne * nen * sizeof(int))
     {
         MPI_File_close(&fileptr);
         MPI_Barrier(MPI_COMM_WORLD);
 
-        if(mype == 0) cout << "ERROR: Overstepping file limits: Ciao:)"  << endl;
+        if(mype == 0) cout << "ERROR: MIEN file is smaller than expected."  << endl;
         MPI_Finalize();
         exit(-1);
     }
@@ -586,3 +660,4 @@ void tetMesh::localizeData()
 
     return;
 }
+

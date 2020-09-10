@@ -110,6 +110,7 @@ class tetMesh
         void quickSort(int*, int*, int, int);
         void localizeNodeCoordinates();
         void localizeData();
+        int isSemiDiscrete(const char* filename, int nn);
     protected:
 
     public:

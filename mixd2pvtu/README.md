@@ -40,5 +40,5 @@ make
 - [X] Implement make install
 - [X] check that installed bin works fine
 - [X] Implement filesize checks. 
-- [ ] Implement spacetime mesh support
+- [X] Implement spacetime mesh support
 - [X] Implement nrecoffset 
