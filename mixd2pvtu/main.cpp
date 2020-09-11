@@ -6,6 +6,8 @@ Name        : 2D_Unsteady_Diffusion.cpp
 #include "tet.h"
 #include "postProcessor.h"
 #include "vtkMPIController.h"
+#include <sys/stat.h>
+#include <sys/types.h>
 
 int main(int argc, char **argv) {
     /***************************************************************************************************
@@ -40,6 +42,13 @@ int main(int argc, char **argv) {
     mesh->prepareMesh(settings);
 
     if (mype==0) cout << endl << "================ POST-PROCESSING =================" << endl;
+
+    int check = mkdir("output", 0777);
+    if (!check)
+        printf("Output directory created\n");
+    else {
+        printf("Output directory already exists\n");
+    }
 
     int nrec = settings->getNrec();
     for (int irec=0; irec<nrec; irec++)

@@ -28,7 +28,7 @@ make
 
 # Todos
 - [ ] Error handling & safety
-- [ ] Write out to subfolders
+- [X] Write out to subfolders
 - [ ] Include simple tests
 - [ ] General restructuring & improvements
 - [ ] Better comments and documentation 
@@ -42,3 +42,4 @@ make
 - [X] Implement filesize checks. 
 - [X] Implement spacetime mesh support
 - [X] Implement nrecoffset 
+- [ ] Implement mixdclass to handle mixd data??
