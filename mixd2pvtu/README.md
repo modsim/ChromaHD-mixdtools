@@ -28,6 +28,8 @@ make
 
 # Todos
 - [ ] Error handling & safety
+- [ ] Fix memory leaks
+- [ ] Use long offsets and sizes
 - [X] Write out to subfolders
 - [ ] Include simple tests
 - [ ] General restructuring & improvements

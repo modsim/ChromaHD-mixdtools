@@ -2,66 +2,6 @@
 #include <vector>
 #include <iterator>
 
-template <class T, class U>
-void readFromFile(T& f1, U& variable)
-{
-    f1.read((char*) &variable, sizeof(variable));
-}
-
-int tetMesh::isSemiDiscrete(const char* filename, int nn)
-{
-
-    // if nn is not even, it is already semi-discrete
-    if (nn % 2 != 0) return 0;
-
-    // open the file:
-    std::ifstream file(filename, std::ios::binary);
-
-    // Stop eating new lines in binary mode!!!
-    file.unsetf(std::ios::skipws);
-
-    // get its size:
-    std::streampos fileSize;
-
-    file.seekg(0, std::ios::end);
-    fileSize = file.tellg();
-    file.seekg(0, std::ios::beg);
-
-    std::streampos halfSize = fileSize/2;
-
-    vector<double> startVal(nsd), midVal(nsd);
-    char dummychar[sizeof(double)];
-
-    for (int isd=0; isd < nsd; isd++)
-    {
-        readFromFile(file, dummychar);
-        swapBytes(dummychar, 1, sizeof(double));
-        startVal.push_back(*((double*)dummychar));
-    }
-
-    file.seekg(halfSize, std::ios::beg);
-
-    for (int isd=0; isd < nsd; isd++)
-    {
-        readFromFile(file, dummychar);
-        swapBytes(dummychar, 1, sizeof(double));
-        midVal.push_back(*((double*)dummychar));
-    }
-
-    if (startVal == midVal)
-    {
-        cout << "> Spacetime mesh provided. Acting appropriately" << endl;
-        return -1;
-    }
-    else
-    {
-        return 0;
-    }
-
-}
-
-
-
 /***************************************************************************************************
 void preProcessor::prepareMesh()
 ****************************************************************************************************
@@ -150,17 +90,7 @@ void tetMesh::readMeshFiles(inputSettings* settings)
         }
     }
 
-    // TEST for spacetime or semi-discrete mesh
-    if (mype == 0)
-    {
-        int sd = isSemiDiscrete(settings->getMxyzFile().c_str(), nn);
-
-        if (sd != 0)
-        {
-            nn = nn/2;
-        }
-    }
-
+    if (settings->getSpacetime() == 1) nn = nn/2;
 
     if (mype==0)
     {
@@ -192,15 +122,19 @@ void tetMesh::readMeshFiles(inputSettings* settings)
     ndf = settings->getNdf();
 
     //Allocation of memory for the mesh data structure
+    /* cout << "Allocating " << nnc*nsd << " doubles for coordinate data: " << double(nnc)*nsd*sizeof(double) / (1024*1024) << "MB" << endl; */
     xyz = new double [nnc*nsd];
 
+    /* cout << "Allocating " << nnc*ndf << " doubles for scalar data: " << double(nnc)*ndf*sizeof(double) / (1024*1024)<< "MB" << endl; */
     dataG = new double [nnc*ndf];
     for(int i=0; i<nnc*ndf; i++) { dataG[i] = 0;};
 
+    /* cout << "Allocating " << nnc << " tetNodes for coordinate data: " << double(nnc)*sizeof(tetNode) / (1024*1024) << "MB" << endl; */
+    /* cout << "Allocating " << nec << " tetElements for coordinate data: " << double(nec)*sizeof(tetElement) / (1024*1024) << "MB" << endl; */
     node = new tetNode[nnc];
     elem = new tetElement[nec];
 
-    if (mype==0) cout << "> Mesh data structure is created." << endl;
+    /* if (mype==0) cout << "> Mesh data structure is created." << endl; */
     MPI_Barrier(MPI_COMM_WORLD);
 
     /***********************************************************************************************
@@ -218,7 +152,7 @@ void tetMesh::readMeshFiles(inputSettings* settings)
     MPI_File_open(MPI_COMM_WORLD, writable, MPI_MODE_RDONLY, MPI_INFO_NULL, &fileptr);
     MPI_File_get_size(fileptr, &size);
 
-    if (size < nn * nsd * sizeof(double))
+    if (size < long(nn) * nsd * sizeof(double))
     {
         MPI_File_close(&fileptr);
         MPI_Barrier(MPI_COMM_WORLD);
@@ -262,7 +196,7 @@ void tetMesh::readMeshFiles(inputSettings* settings)
     MPI_File_open(MPI_COMM_WORLD, writable, MPI_MODE_RDONLY, MPI_INFO_NULL, &fileptr);
     MPI_File_get_size(fileptr, &size);
 
-    if (size < ne * nen * sizeof(int))
+    if (size < long(ne) * nen * sizeof(int))
     {
         MPI_File_close(&fileptr);
         MPI_Barrier(MPI_COMM_WORLD);
@@ -328,7 +262,9 @@ void tetMesh::readDataFile(inputSettings* settings, int irec)
     int FSV;
 
     int nrecstride = settings->getNrecstride();
+    if (settings->getSpacetime() == 1) nrecstride *= 2;
     int nrecoffset = settings->getNrecoffset();
+    if (settings->getSpacetime() == 1) nrecoffset *= 2;
 
     /* offset = mype*ndf*mnc*sizeof(double); */
 
@@ -348,7 +284,6 @@ void tetMesh::readDataFile(inputSettings* settings, int irec)
         if(mype == 0) cout << "ERROR: Overstepping file limits: Ciao:)"  << endl;
         MPI_Finalize();
         exit(-1);
-
     }
 
     MPI_File_set_view(fileptr, offset, MPI_DOUBLE, dataftype, "native", MPI_INFO_NULL);

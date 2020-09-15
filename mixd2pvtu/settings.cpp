@@ -21,6 +21,7 @@ inputSettings::inputSettings(int largc, char** largv)
     nrecoffset = 0;
     ndf        = 1;
     dt         = 1.0;
+    spacetime  = 0;
 }
 
 /***************************************************************************************************
@@ -97,6 +98,8 @@ void inputSettings::readSettingsFile()
                 iss >> nrecstride;
             else if(dummyString == "nrecoffset")
                 iss >> nrecoffset;
+            else if(dummyString == "spacetime")
+                iss >> spacetime;
             else if(dummyString == "dt")
                 iss >> dt;
             else
@@ -140,6 +143,7 @@ void inputSettings::printSettings()
         cout << "Number of Timesteps                   : " << nrec		<< endl;
         cout << "Number of Timesteps Stride            : " << nrecstride<< endl;
         cout << "Number of Timesteps Offset            : " << nrecoffset<< endl;
+        cout << "Spacetime                             : " << spacetime << endl;
         /* cout << "Time step size                        : " << dt		<< endl; */
     }
 

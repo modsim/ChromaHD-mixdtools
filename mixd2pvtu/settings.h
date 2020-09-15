@@ -27,6 +27,7 @@ class inputSettings
         int       nrec;
         int       nrecstride;
         int       nrecoffset;
+        int       spacetime;
         double    dt;          // time step size
 
         // METHODS
@@ -53,6 +54,7 @@ class inputSettings
         int    getNrec()       {return nrec;};
         int    getNrecstride() {return nrecstride;};
         int    getNrecoffset() {return nrecoffset;};
+        int    getSpacetime()  {return spacetime;};
         double getDt()         {return dt;};
 
         //INTERFACE METHOD
