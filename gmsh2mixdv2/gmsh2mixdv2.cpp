@@ -15,8 +15,6 @@
 // TODO: stop using endian library? be consistent with write functions?
 // TODO: change from templating ORDER to using it as a function parameter or mesh attribute.
 
-// Unfortunately, the order cannot be changed at runtime since non-type template arguments need to be defined at compile time. So I would need to have to modify N and compile it for switching orders.
-
 int readfile(std::string filename, Mesh &mesh)
 {
     std::ifstream infile(filename);
