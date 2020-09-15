@@ -152,7 +152,7 @@ void tetMesh::readMeshFiles(inputSettings* settings)
     MPI_File_open(MPI_COMM_WORLD, writable, MPI_MODE_RDONLY, MPI_INFO_NULL, &fileptr);
     MPI_File_get_size(fileptr, &size);
 
-    if (size < long(nn) * nsd * sizeof(double))
+    if (size < nn * nsd * sizeof(double))
     {
         MPI_File_close(&fileptr);
         MPI_Barrier(MPI_COMM_WORLD);
@@ -196,7 +196,7 @@ void tetMesh::readMeshFiles(inputSettings* settings)
     MPI_File_open(MPI_COMM_WORLD, writable, MPI_MODE_RDONLY, MPI_INFO_NULL, &fileptr);
     MPI_File_get_size(fileptr, &size);
 
-    if (size < long(ne) * nen * sizeof(int))
+    if (size < ne * nen * sizeof(int))
     {
         MPI_File_close(&fileptr);
         MPI_Barrier(MPI_COMM_WORLD);

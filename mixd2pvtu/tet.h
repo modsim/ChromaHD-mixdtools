@@ -85,13 +85,13 @@ class tetMesh
 {
     private:
         // VARIABLES
-        int ne;                     // total number of elements
-        int nec;                    // number of elements per cpu
-        int mec;                    // max. number of elements among all cpus
-        int nn;                     // number of nodes
-        int nnc;                    // number of nodes per core
-        int nnl;                    // number of local nodes
-        int mnc;                    // max. number of nodes among all cpus
+        long ne;                     // total number of elements
+        long nec;                    // number of elements per cpu
+        long mec;                    // max. number of elements among all cpus
+        long nn;                     // number of nodes
+        long nnc;                    // number of nodes per core
+        long nnl;                    // number of local nodes
+        long mnc;                    // max. number of nodes among all cpus
         int ndf;
         int * nodeLToG;             // array for local to global connectivity conversion
         tetNode*            node;   // pointer to partition, node level data structure

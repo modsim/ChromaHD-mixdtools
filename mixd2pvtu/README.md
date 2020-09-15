@@ -25,13 +25,14 @@ make
 - Timestriding implemented (nrecstride. use ncrecstride=2 for spacetime data out) 
 - Timestep lengths are not used 
 - Example settings file is provided with source code
+- ISSUE: for large meshes, it gets stuck after mxyz read.
 
 # Todos
 - [ ] Error handling & safety
 - [ ] Fix memory leaks
-- [ ] Use long offsets and sizes
+- [X] Use long offsets and sizes
 - [X] Write out to subfolders
-- [ ] Include simple tests
+- [ ] script simple tests
 - [ ] General restructuring & improvements
 - [ ] Better comments and documentation 
 - [X] Clean STDOUT
