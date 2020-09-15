@@ -6,7 +6,7 @@ PROJECT(mixd2pvtu)
 find_package(MPI REQUIRED)
 include_directories(SYSTEM ${MPI_INCLUDE_PATH})
 # add_compile_options(-g -ftrapv)
-add_compile_options(-O3 -g)
+add_compile_options(-O3)
 
 find_package(VTK REQUIRED)
 include(${VTK_USE_FILE})
