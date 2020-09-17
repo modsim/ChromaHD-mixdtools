@@ -17,6 +17,10 @@ include(${VTK_USE_FILE})
 
 set(CMAKE_INSTALL_PREFIX "~/local")
 
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+link_libraries(stdc++fs)
+
 include_directories(.)
 file(GLOB SOURCES "*.cpp")
 
@@ -25,5 +29,6 @@ add_executable(mixd2pvtu ${SOURCES})
 target_link_libraries(mixd2pvtu ${MPI_C_LIBRARIES})
 target_link_libraries(mixd2pvtu ${MPI_CXX_LIBRARIES})
 target_link_libraries(mixd2pvtu ${VTK_LIBRARIES})
+
 
 install (TARGETS mixd2pvtu DESTINATION ${CMAKE_INSTALL_PREFIX}/bin)

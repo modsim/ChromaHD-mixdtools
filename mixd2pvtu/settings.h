@@ -2,6 +2,7 @@
 #define SETTINGS_H_
 
 #include "constants.h"
+#include <vector>
 
 /***************************************************************************************************
 Input parameters are stored in this class. readSettingsFile() method does the job: It opens the
@@ -23,11 +24,12 @@ class inputSettings
         string    mienFile;    // connctivity file name
         string    mrngFile;    // boundary info file name
         string    dataFile;    // data file name
+        vector<string>    dataFiles;
         int       ndf; // number of scalar values
         int       nrec;
-        int       nrecstride;
-        int       nrecoffset;
-        int       spacetime;
+        int       nrecstride;  // get every nrecstride'th timestep record.
+        int       nrecoffset;  // initial offset
+        int       spacetime;    // if mesh is spacetime
         double    dt;          // time step size
 
         // METHODS
@@ -42,20 +44,21 @@ class inputSettings
         inputSettings(int, char**);
         /// GETTERS ///
 
-        int    getArgc()       {return argc;};
-        char** getArgv()       {return argv;};
-        string getTitle()      {return title;};
-        string getMinfFile()   {return minfFile;};
-        string getMxyzFile()   {return mxyzFile;};
-        string getMienFile()   {return mienFile;};
-        string getMrngFile()   {return mrngFile;};
-        string getDataFile()   {return dataFile;};
-        int    getNdf()        {return ndf;};
-        int    getNrec()       {return nrec;};
-        int    getNrecstride() {return nrecstride;};
-        int    getNrecoffset() {return nrecoffset;};
-        int    getSpacetime()  {return spacetime;};
-        double getDt()         {return dt;};
+        int            getArgc()                {return argc;};
+        char**         getArgv()                {return argv;};
+        string         getTitle()               {return title;};
+        string         getMinfFile()            {return minfFile;};
+        string         getMxyzFile()            {return mxyzFile;};
+        string         getMienFile()            {return mienFile;};
+        string         getMrngFile()            {return mrngFile;};
+        string         getDataFile()            {return dataFile;};
+        vector<string> getDataFiles()           {return dataFiles;};
+        int            getNdf()                 {return ndf;};
+        int            getNrec()                {return nrec;};
+        int            getNrecstride()          {return nrecstride;};
+        int            getNrecoffset()          {return nrecoffset;};
+        int            getSpacetime()           {return spacetime;};
+        double         getDt()                  {return dt;};
 
         //INTERFACE METHOD
         void prepareSettings();

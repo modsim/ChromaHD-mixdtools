@@ -1,6 +1,8 @@
 #include "tet.h"
 #include <vector>
 #include <iterator>
+#include <experimental/filesystem>
+#include <algorithm>
 
 /***************************************************************************************************
 void preProcessor::prepareMesh()
@@ -22,8 +24,85 @@ void tetMesh::prepareMesh(inputSettings* settings)
 
 void tetMesh::processData(inputSettings* settings, int irec)
 {
+    //given irec, find file and offset
+    // first, list number of files = nDataFiles
+    // find sizes of each files and put it in a vector: vDataFileSizes
     readDataFile(settings, irec);
     localizeData();
+}
+
+void tetMesh::getFileAndOffset(inputSettings* settings, int irec, string& dataFile, MPI_Offset& totalOffset)
+{
+    int nrecstride = settings->getNrecstride();
+    if (settings->getSpacetime() == 1) nrecstride *= 2;
+    int nrecoffset = settings->getNrecoffset();
+    if (settings->getSpacetime() == 1) nrecoffset *= 2;
+
+    int mype, npes;              // my processor rank and total number of processors
+    MPI_Comm_rank(MPI_COMM_WORLD, &mype);
+    MPI_Comm_size(MPI_COMM_WORLD, &npes);
+    int ndf = settings->getNdf();
+
+    MPI_Offset processOffset, timestepOffset, recordOffset, fileOffset, rawOffset;
+
+    /* rawOffset is the offset assuming we have one single large file that we're timestepping over
+     * since we deal with Restart files, data is duplicated at the start of each data file: It has one extra timestep at the beginning.
+     *
+     * So we calculate the rawOffset and subtract a certain fileOffset to account for stepping over files.
+     * Now to calculate the index of each file is a doozy. We have:
+     *      - indexR (Restart) pointing to a file assuming we neglect the first timestep for every data file except the first.
+     *
+     *  There's probably an easier way to do this... like considering the LAST timestep of EVERY file as redundant, but this is what I went with.
+     */
+    processOffset = mype*ndf*mnc*sizeof(double);
+    timestepOffset = (irec*nrecstride)*ndf*nn*sizeof(double);
+    recordOffset = (nrecoffset)*ndf*nn*sizeof(double);
+    rawOffset = processOffset + timestepOffset + recordOffset;
+
+    //calculate fileOffset based on rawOffset and filesizes
+    vector<string> dataFiles = settings->getDataFiles();
+    vector<size_t> dataFileSizes, dataFileSizesC, dataFileSizesR;
+    size_t size = 0, cumulativeFileSize = 0;
+    for(vector<string>::iterator it = dataFiles.begin(); it != dataFiles.end(); ++it)
+    {
+        int index = it - dataFiles.begin();
+        size = experimental::filesystem::file_size(*it);
+        cumulativeFileSize += size;
+        dataFileSizes.push_back(size);
+
+        // Cumulative file size array.
+        // Necessary for finding fileOffset.
+        dataFileSizesC.push_back(cumulativeFileSize);
+
+        //Cumulative file size array without accounting for first timestep
+        //Necessary for finding indexR
+        dataFileSizesR.push_back( cumulativeFileSize - (index)*nn*ndf*sizeof(double));
+
+        /* cout << "File: " << *it << " | size: " << size << " | cumulative: " << cumulativeFileSize << endl; */
+    }
+
+    // Find the file containing the current record.
+    // using dataFileSizesR, we don't account for the first timestep in restart files, pinpointing the right file for us
+    vector<size_t>::iterator iFileR = upper_bound(dataFileSizesR.begin(), dataFileSizesR.end(), rawOffset);
+    int fileIndexR = iFileR - dataFileSizesR.begin();
+
+    if (fileIndexR == 0)
+        fileOffset = 0;
+    else
+    {
+        // fileOffset = ACTUAL cumulative sum of all previous filesizes - one record per file except the first.
+        // dataFileSizesC is used here (as opposed to R) because we essentially want to reset the reference to the start of
+        // the file pointed to by fileIndexR. ALL the data in the previous files is irrelevant.
+        // The second term pushes the reference forward by 1 step, avoiding the redundant initial timestep in restart files.
+        fileOffset = dataFileSizesC.at(fileIndexR-1) - (fileIndexR)*nn*ndf*sizeof(double);
+    }
+
+    //totalOffset. Probably better called finalOffset or trueOffset
+    totalOffset = rawOffset - fileOffset;
+    dataFile = dataFiles.at(fileIndexR);
+
+    /* cout << "irec: " << irec << " file: " << "[" << fileIndexR << "] " << dataFiles.at(fileIndexR) << " rawOffset: " << rawOffset << " fileOffset: " << fileOffset << " totalOffset: " << totalOffset << endl; */
+
 }
 
 /***************************************************************************************************
@@ -254,26 +333,21 @@ void tetMesh::readDataFile(inputSettings* settings, int irec)
     * READ THE DATA FILE
     * This file contains output scalar data
     ***********************************************************************************************/
-    dummy = settings->getDataFile();
-    char * writable = new char[dummy.size() + 1];
-    std::copy(dummy.begin(), dummy.end(), writable);
-    writable[dummy.size()] = '\0';
-
-    int FSV;
+    /* vector<string> dataFiles = settings->getDataFiles(); */
+    string filename;
 
     int nrecstride = settings->getNrecstride();
     if (settings->getSpacetime() == 1) nrecstride *= 2;
     int nrecoffset = settings->getNrecoffset();
     if (settings->getSpacetime() == 1) nrecoffset *= 2;
 
-    /* offset = mype*ndf*mnc*sizeof(double); */
-
-    offset = mype*ndf*mnc*sizeof(double) + (irec*nrecstride + nrecoffset)*ndf*nn*sizeof(double);
+    getFileAndOffset(settings, irec, filename, offset);
+    cout << "Reading File: " << filename << " starting at offset: " << offset <<endl;
 
     MPI_Type_contiguous(nnc*ndf, MPI_DOUBLE, &dataftype);
     MPI_Type_commit(&dataftype);
 
-    MPI_File_open(MPI_COMM_WORLD, writable, MPI_MODE_RDONLY, MPI_INFO_NULL, &fileptr);
+    MPI_File_open(MPI_COMM_WORLD, filename.c_str(), MPI_MODE_RDONLY, MPI_INFO_NULL, &fileptr);
     MPI_File_get_size(fileptr, &size);
 
     if (offset >= size)
@@ -301,7 +375,7 @@ void tetMesh::readDataFile(inputSettings* settings, int irec)
         }
     }
 
-    //if (mype==0) cout << "> File read complete: " << dummy << endl;
+    /* if (mype==0) cout << "> File read complete: " << filename << endl; */
 
     MPI_File_close(&fileptr);
     MPI_Barrier(MPI_COMM_WORLD);
@@ -312,7 +386,7 @@ void tetMesh::readDataFile(inputSettings* settings, int irec)
 
 void tetMesh::swapBytes (char *array, int nelem, int elsize)
 {
-    register int sizet, sizem, i, j;
+    int sizet, sizem, i, j;
     char *bytea, *byteb;
     sizet = elsize;
     sizem = sizet - 1;

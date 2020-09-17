@@ -49,6 +49,7 @@ void inputSettings::readSettingsFile()
     char * fileName;
     string lineString;
     string dummyString;
+    string dummyString2;
     char   dummyChar;
 
     ifstream inputFile;
@@ -90,6 +91,17 @@ void inputSettings::readSettingsFile()
                 iss >> mrngFile;
             else if(dummyString == "data")
                 iss >> dataFile;
+            else if(dummyString == "datafiles")
+            {
+                while (getline(iss, dummyString2, ' '))
+                {
+                    if (dummyString2 != " " && (!dummyString2.empty()))
+                    {
+                        cout << "Found " << dummyString2 << endl;
+                        dataFiles.push_back(dummyString2);
+                    }
+                }
+            }
             else if(dummyString == "ndf")
                 iss >> ndf;
             else if(dummyString == "nrec")
@@ -134,16 +146,21 @@ void inputSettings::printSettings()
     {
         cout << endl << "==================== SETTINGS ====================" << endl;
         cout << "Title of the simualation              : " << title		<< endl;
+        cout << "Spacetime                             : " << spacetime << endl;
         cout << "Name of the minf file                 : " << minfFile	<< endl;
         cout << "Name of the mxyz file                 : " << mxyzFile	<< endl;
         cout << "Name of the mien file                 : " << mienFile	<< endl;
         cout << "Name of the mrng file                 : " << mrngFile	<< endl;
-        cout << "Name of the initial distribution file : " << dataFile	<< endl;
+        /* cout << "Name of the initial distribution file : " << dataFile	<< endl; */
         cout << "Number of variables in data           : " << ndf		<< endl;
         cout << "Number of Timesteps                   : " << nrec		<< endl;
         cout << "Number of Timesteps Stride            : " << nrecstride<< endl;
         cout << "Number of Timesteps Offset            : " << nrecoffset<< endl;
-        cout << "Spacetime                             : " << spacetime << endl;
+        cout << "Number of Data Files                  : " << dataFiles.size()<< endl;
+        cout << "Data Files                            : " << flush;
+        for(vector<string>::iterator it = dataFiles.begin(); it != dataFiles.end(); ++it)
+            cout << *it << " " << flush;
+        cout << endl;
         /* cout << "Time step size                        : " << dt		<< endl; */
     }
 

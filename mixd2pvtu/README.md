@@ -46,3 +46,5 @@ make
 - [X] Implement spacetime mesh support
 - [X] Implement nrecoffset 
 - [ ] Implement mixdclass to handle mixd data??
+- [ ] -march, -mtune flags?
+- [X] Allow stringing together multiple data files (with offset of 1 in between them)

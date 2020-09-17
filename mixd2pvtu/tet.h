@@ -145,6 +145,7 @@ class tetMesh
         // INTERFACE METHOD
         void prepareMesh(inputSettings*);
         void processData(inputSettings* settings, int irec);
+        void getFileAndOffset(inputSettings* settings, int irec, string& dataFile, MPI_Offset& totalOffset);
 };
 
 #endif /* TET_H_ */
