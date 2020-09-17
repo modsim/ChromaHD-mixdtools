@@ -96,10 +96,7 @@ void inputSettings::readSettingsFile()
                 while (getline(iss, dummyString2, ' '))
                 {
                     if (dummyString2 != " " && (!dummyString2.empty()))
-                    {
-                        cout << "Found " << dummyString2 << endl;
                         dataFiles.push_back(dummyString2);
-                    }
                 }
             }
             else if(dummyString == "ndf")

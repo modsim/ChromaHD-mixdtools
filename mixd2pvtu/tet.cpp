@@ -342,7 +342,8 @@ void tetMesh::readDataFile(inputSettings* settings, int irec)
     if (settings->getSpacetime() == 1) nrecoffset *= 2;
 
     getFileAndOffset(settings, irec, filename, offset);
-    cout << "Reading File: " << filename << " starting at offset: " << offset <<endl;
+    /* cout << "Reading File: " << filename << " starting at offset: " << offset <<endl; */
+    if (mype == 0) cout << "rec " << irec << ": reading...\r" << flush;
 
     MPI_Type_contiguous(nnc*ndf, MPI_DOUBLE, &dataftype);
     MPI_Type_commit(&dataftype);
