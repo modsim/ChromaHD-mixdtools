@@ -29,7 +29,7 @@ make
 
 # Todos
 - [ ] Error handling & safety
-- [ ] Fix memory leaks
+- [X] Fix memory leaks
 - [X] Use long offsets and sizes
 - [X] Write out to subfolders
 - [ ] script simple tests

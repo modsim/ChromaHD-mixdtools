@@ -35,10 +35,8 @@ void postProcessor::vtkVisualization(int irec)
     int ndf = mesh->getNdf();
 
     double * dataL = mesh->getDataL();
-    double * dataG = mesh->getDataG();
 
-
-    int * nodeLToG = mesh->getNodeLToG();
+    /* int * nodeLToG = mesh->getNodeLToG(); */
 
     int mype, npes;             // my processor rank and total number of processors
 
@@ -73,6 +71,7 @@ void postProcessor::vtkVisualization(int irec)
         for(int j=0; j<nen; j++)
             connectivity->InsertCellPoint(mesh->getElem(i)->getLConn(j));
     }
+
 
     vtkSmartPointer<vtkUnstructuredGrid> unsGrid = vtkSmartPointer<vtkUnstructuredGrid>::New();
     unsGrid->SetPoints(outputPoints);

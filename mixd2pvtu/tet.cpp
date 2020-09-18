@@ -19,6 +19,12 @@ void tetMesh::prepareMesh(inputSettings* settings)
     formLocalNodeList();
     localizeNodeCoordinates();
 
+    MPI_Barrier(MPI_COMM_WORLD); //Need a barrier to delete xyz
+    delete[] xyz;
+
+    dataG = new double [nnc*ndf];
+    dataL = new double [nnl*ndf];
+
     return;
 }
 
@@ -27,8 +33,11 @@ void tetMesh::processData(inputSettings* settings, int irec)
     //given irec, find file and offset
     // first, list number of files = nDataFiles
     // find sizes of each files and put it in a vector: vDataFileSizes
+
+
     readDataFile(settings, irec);
     localizeData();
+
 }
 
 void tetMesh::getFileAndOffset(inputSettings* settings, int irec, string& dataFile, MPI_Offset& totalOffset)
@@ -133,8 +142,10 @@ void tetMesh::readMeshFiles(inputSettings* settings)
     MPI_Status status;
     MPI_Offset offset;           // offset from the beginning of file for parallel file read
     MPI_Offset size;
-    MPI_Datatype mxyzftype,mienftype,mrngftype,dataftype;        // mpi datatype used in parallel file read
+    MPI_Datatype mxyzftype,mienftype;        // mpi datatype used in parallel file read
     MPI_File fileptr;            // file pointer for parallel file read
+
+
 
     /***********************************************************************************************
     * READ THE MINF FILE
@@ -205,30 +216,32 @@ void tetMesh::readMeshFiles(inputSettings* settings)
     xyz = new double [nnc*nsd];
 
     /* cout << "Allocating " << nnc*ndf << " doubles for scalar data: " << double(nnc)*ndf*sizeof(double) / (1024*1024)<< "MB" << endl; */
-    dataG = new double [nnc*ndf];
-    for(int i=0; i<nnc*ndf; i++) { dataG[i] = 0;};
 
     /* cout << "Allocating " << nnc << " tetNodes for coordinate data: " << double(nnc)*sizeof(tetNode) / (1024*1024) << "MB" << endl; */
     /* cout << "Allocating " << nec << " tetElements for coordinate data: " << double(nec)*sizeof(tetElement) / (1024*1024) << "MB" << endl; */
-    node = new tetNode[nnc];
+    /* node = new tetNode[nnc]; */
     elem = new tetElement[nec];
 
     /* if (mype==0) cout << "> Mesh data structure is created." << endl; */
     MPI_Barrier(MPI_COMM_WORLD);
+
+
+    MPI_Type_contiguous(nnc*nsd, MPI_DOUBLE, &mxyzftype);
+    MPI_Type_contiguous(nec*nen, MPI_INT, &mienftype);
+    MPI_Type_commit(&mxyzftype);
+    MPI_Type_commit(&mienftype);
 
     /***********************************************************************************************
     * READ THE MXYZ FILE
     * This file contains the node coordinates
     ***********************************************************************************************/
     dummy = settings->getMxyzFile();
-    char * writable = new char[dummy.size() + 1];
-    std::copy(dummy.begin(), dummy.end(), writable);
-    writable[dummy.size()] = '\0';
+    /* char * writable = new char[dummy.size() + 1]; */
+    /* std::copy(dummy.begin(), dummy.end(), writable); */
+    /* writable[dummy.size()] = '\0'; */
 
     offset = mype*nsd*mnc*sizeof(double);
-    MPI_Type_contiguous(nnc*nsd, MPI_DOUBLE, &mxyzftype);
-    MPI_Type_commit(&mxyzftype);
-    MPI_File_open(MPI_COMM_WORLD, writable, MPI_MODE_RDONLY, MPI_INFO_NULL, &fileptr);
+    MPI_File_open(MPI_COMM_WORLD, dummy.c_str(), MPI_MODE_RDONLY, MPI_INFO_NULL, &fileptr);
     MPI_File_get_size(fileptr, &size);
 
     if (size < nn * nsd * sizeof(double))
@@ -247,15 +260,18 @@ void tetMesh::readMeshFiles(inputSettings* settings)
     swapBytes(readStream, nsd*nnc, sizeof(double));
     for(int i=0; i<nnc; i++)
     {
-        node[i].setX(*((double*)readStream + nsd*i));
-        node[i].setY(*((double*)readStream + nsd*i+1));
-        node[i].setZ(*((double*)readStream + nsd*i+2));
+        /* node[i].setX(*((double*)readStream + nsd*i)); */
+        /* node[i].setY(*((double*)readStream + nsd*i+1)); */
+        /* node[i].setZ(*((double*)readStream + nsd*i+2)); */
         xyz[i*nsd+xsd] = *((double*)readStream + nsd*i);
         xyz[i*nsd+ysd] = *((double*)readStream + nsd*i+1);
         xyz[i*nsd+zsd] = *((double*)readStream + nsd*i+2);
 
     }
+
     if (mype==0) cout << "> File read complete: " << dummy << endl;
+
+    delete[] readStream;
 
     MPI_File_close(&fileptr);
     MPI_Barrier(MPI_COMM_WORLD);
@@ -265,14 +281,12 @@ void tetMesh::readMeshFiles(inputSettings* settings)
     * This file contains the element connectivity
     ***********************************************************************************************/
     dummy = settings->getMienFile();
-    writable = new char[dummy.size() + 1];
-    std::copy(dummy.begin(), dummy.end(), writable);
-    writable[dummy.size()] = '\0';
+    /* writable = new char[dummy.size() + 1]; */
+    /* std::copy(dummy.begin(), dummy.end(), writable); */
+    /* writable[dummy.size()] = '\0'; */
 
     offset = mype*nen*mec*sizeof(int);
-    MPI_Type_contiguous(nec*nen, MPI_INT, &mienftype);
-    MPI_Type_commit(&mienftype);
-    MPI_File_open(MPI_COMM_WORLD, writable, MPI_MODE_RDONLY, MPI_INFO_NULL, &fileptr);
+    MPI_File_open(MPI_COMM_WORLD, dummy.c_str(), MPI_MODE_RDONLY, MPI_INFO_NULL, &fileptr);
     MPI_File_get_size(fileptr, &size);
 
     if (size < ne * nen * sizeof(int))
@@ -302,7 +316,13 @@ void tetMesh::readMeshFiles(inputSettings* settings)
 
     if (mype==0) cout << "> File read complete: " << dummy << endl;
 
+    delete[] readStream;
+
     MPI_File_close(&fileptr);
+
+    MPI_Type_free(&mxyzftype);
+    MPI_Type_free(&mienftype);
+
     MPI_Barrier(MPI_COMM_WORLD);
 
 
@@ -326,9 +346,11 @@ void tetMesh::readDataFile(inputSettings* settings, int irec)
     MPI_Status status;
     MPI_Offset offset;           // offset from the beginning of file for parallel file read
     MPI_Offset size;
-    MPI_Datatype mxyzftype,mienftype,mrngftype,dataftype;        // mpi datatype used in parallel file read
     MPI_File fileptr;            // file pointer for parallel file read
 
+    MPI_Datatype dataftype;
+    MPI_Type_contiguous(nnc*ndf, MPI_DOUBLE, &dataftype);
+    MPI_Type_commit(&dataftype);
     /***********************************************************************************************
     * READ THE DATA FILE
     * This file contains output scalar data
@@ -345,8 +367,6 @@ void tetMesh::readDataFile(inputSettings* settings, int irec)
     /* cout << "Reading File: " << filename << " starting at offset: " << offset <<endl; */
     if (mype == 0) cout << "rec " << irec << ": reading...\r" << flush;
 
-    MPI_Type_contiguous(nnc*ndf, MPI_DOUBLE, &dataftype);
-    MPI_Type_commit(&dataftype);
 
     MPI_File_open(MPI_COMM_WORLD, filename.c_str(), MPI_MODE_RDONLY, MPI_INFO_NULL, &fileptr);
     MPI_File_get_size(fileptr, &size);
@@ -366,7 +386,7 @@ void tetMesh::readDataFile(inputSettings* settings, int irec)
     MPI_File_read(fileptr, readStream, ndf*nnc, MPI_DOUBLE, &status);
     swapBytes(readStream, ndf*nnc, sizeof(double));
 
-    for(int i=0; i<nnc*ndf; i++) { dataG[i] = 0;};
+    for(int i=0; i<nnc*ndf; i++) { dataG[i] = 0;}; //TODO: convert all indices to long
 
     for(int inc=0; inc<nnc; inc++)
     {
@@ -378,7 +398,10 @@ void tetMesh::readDataFile(inputSettings* settings, int irec)
 
     /* if (mype==0) cout << "> File read complete: " << filename << endl; */
 
+    delete[] readStream;
+
     MPI_File_close(&fileptr);
+    MPI_Type_free(&dataftype);
     MPI_Barrier(MPI_COMM_WORLD);
 
     return;
@@ -520,6 +543,11 @@ void tetMesh::formLocalNodeList()
         cout << endl;
     }
 */
+
+    delete[] allLocalNodes;
+    delete[] index;
+    delete[] rawLocalConn;
+
     return;
 }
 
@@ -631,7 +659,6 @@ void tetMesh::localizeData()
     MPI_Win_create(dataG, nnc*ndf*sizeof(double), sizeof(double), MPI_INFO_NULL, MPI_COMM_WORLD, &win);
     MPI_Win_fence(0, win);
 
-    dataL = new double [nnl*ndf];
     for(int i=0; i<nnl*ndf; i++) { dataL[i] = 0;};
 
     int mype;                // my processor rank and total number of processors

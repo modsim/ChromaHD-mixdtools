@@ -60,6 +60,8 @@ int main(int argc, char **argv) {
         postP->postProcessorControl(settings, mesh, irec);
     }
 
+
+
     if (mype==0) cout << endl << "====================== END =======================" << endl;
     if(mype==0) cout << "Elapsed time is " << fixed << MPI_Wtime()-starttime << endl;
 
@@ -67,6 +69,7 @@ int main(int argc, char **argv) {
     delete settings;
     delete mesh;
     delete postP;
+
     if(mype == 0) cout << ": Ciao:)"  << endl;
 
     controller->Finalize(1);

@@ -93,7 +93,7 @@ class tetMesh
         long nnl;                    // number of local nodes
         long mnc;                    // max. number of nodes among all cpus
         int ndf;
-        int * nodeLToG;             // array for local to global connectivity conversion
+        int * nodeLToG;             // array for local to global connectivity conversion TODO: Make this long
         tetNode*            node;   // pointer to partition, node level data structure
         tetNode*            lNode;  // pointer to local, node level data structure
         tetElement*         elem;   // pointer to element level data structure
@@ -119,9 +119,12 @@ class tetMesh
         // DESTRUCTOR
         ~tetMesh()
         {
-            delete[] node;    // Recovers memory for node level data structure.
+            /* delete[] node;    // Recovers memory for node level data structure. */
             delete[] lNode;   // Recovers memory for local node level data structure.
             delete[] elem;    // Recovers memory for element level data structure.
+            delete[] dataL;
+            delete[] dataG;
+            delete[] nodeLToG;
         };
         // GETTERS
         int        getNe()                 {return ne;};
