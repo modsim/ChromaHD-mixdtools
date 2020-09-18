@@ -13,9 +13,9 @@ void postProcessor::postProcessorControl(inputSettings* argSettings, tetMesh* ar
     settings = argSettings;
 
     /* if (mype==0) cout << "Writing irec: " << irec << endl; */
-    if (mype == 0) cout << "rec " << irec << ": writing...\r" << flush;
+    if (mype == 0) cout << "\rrec " << irec << ": writing..." << flush;
     vtkVisualization(irec);
-    if (mype == 0) cout << "rec " << irec << ": done!     " << endl;;
+    if (mype == 0) cout << "\rrec " << irec << ": done!     " << endl;;
 
     return;
 }
