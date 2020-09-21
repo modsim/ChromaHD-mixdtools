@@ -23,7 +23,6 @@ class inputSettings
         string    mxyzFile;    // node coordinates file name
         string    mienFile;    // connctivity file name
         string    mrngFile;    // boundary info file name
-        string    dataFile;    // data file name
         vector<string>    dataFiles;
         int       ndf; // number of scalar values
         int       nrec;
@@ -51,7 +50,6 @@ class inputSettings
         string         getMxyzFile()            {return mxyzFile;};
         string         getMienFile()            {return mienFile;};
         string         getMrngFile()            {return mrngFile;};
-        string         getDataFile()            {return dataFile;};
         vector<string> getDataFiles()           {return dataFiles;};
         int            getNdf()                 {return ndf;};
         int            getNrec()                {return nrec;};

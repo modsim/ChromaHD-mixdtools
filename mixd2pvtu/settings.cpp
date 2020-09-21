@@ -15,7 +15,6 @@ inputSettings::inputSettings(int largc, char** largv)
     mxyzFile   = "mxyz";
     mienFile   = "mien";
     mrngFile   = "mrng";
-    dataFile   = "data";
     nrec       = 1;
     nrecstride = 1;
     nrecoffset = 0;
@@ -90,8 +89,6 @@ void inputSettings::readSettingsFile()
             else if(dummyString == "mrng")
                 iss >> mrngFile;
             else if(dummyString == "data")
-                iss >> dataFile;
-            else if(dummyString == "datafiles")
             {
                 while (getline(iss, dummyString2, ' '))
                 {
@@ -148,7 +145,6 @@ void inputSettings::printSettings()
         cout << "Name of the mxyz file                 : " << mxyzFile	<< endl;
         cout << "Name of the mien file                 : " << mienFile	<< endl;
         cout << "Name of the mrng file                 : " << mrngFile	<< endl;
-        /* cout << "Name of the initial distribution file : " << dataFile	<< endl; */
         cout << "Number of variables in data           : " << ndf		<< endl;
         cout << "Number of Timesteps                   : " << nrec		<< endl;
         cout << "Number of Timesteps Stride            : " << nrecstride<< endl;
