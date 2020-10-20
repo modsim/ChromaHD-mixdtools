@@ -29,6 +29,7 @@ make
 
 # Todos
 - [ ] Error handling & safety
+- [ ] Improve allocations
 - [X] Fix memory leaks
 - [X] Use long offsets and sizes
 - [X] Write out to subfolders
@@ -48,3 +49,4 @@ make
 - [ ] Implement mixdclass to handle mixd data??
 - [ ] -march, -mtune flags?
 - [X] Allow stringing together multiple data files (with offset of 1 in between them)
+- [ ] Timing outputs for different sections of the code. Also per data write. 

@@ -10,7 +10,7 @@ inputSettings::inputSettings(int largc, char** largv)
 
     argc       = largc;                //Command line parameters are stored at private var
     argv       = largv;                //Command line parameters are stored at private var
-    title      = "Default Title";
+    title      = "vis";
     minfFile   = "minf";
     mxyzFile   = "mxyz";
     mienFile   = "mien";
