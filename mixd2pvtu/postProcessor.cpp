@@ -100,7 +100,9 @@ void postProcessor::vtkVisualization(int irec)
     vtkSmartPointer<vtkXMLPUnstructuredGridWriter> pwriter = vtkSmartPointer<vtkXMLPUnstructuredGridWriter>::New();
 
 
-    dummy = "output/";
+    /* dummy = "output/" */
+    dummy = settings->getOutpath() + "/";
+
     dummy.append(settings->getTitle());
     dummy.append("_");
     dummy.append(to_string(irec));

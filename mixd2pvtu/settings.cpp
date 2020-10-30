@@ -21,6 +21,7 @@ inputSettings::inputSettings(int largc, char** largv)
     ndf        = 1;
     dt         = 1.0;
     spacetime  = 0;
+    outpath    = "output";
 }
 
 /***************************************************************************************************
@@ -108,6 +109,8 @@ void inputSettings::readSettingsFile()
                 iss >> spacetime;
             else if(dummyString == "dt")
                 iss >> dt;
+            else if(dummyString == "outpath")
+                iss >> outpath;
             else
             {
                 cout << endl << "Unknown keyword in the settings file : " << dummyString;
@@ -150,6 +153,7 @@ void inputSettings::printSettings()
         cout << "Number of Timesteps Stride            : " << nrecstride<< endl;
         cout << "Number of Timesteps Offset            : " << nrecoffset<< endl;
         cout << "Number of Data Files                  : " << dataFiles.size()<< endl;
+        cout << "Output Directory                      : " << outpath << endl;
         cout << "Data Files                            : " << flush;
         for(vector<string>::iterator it = dataFiles.begin(); it != dataFiles.end(); ++it)
             cout << *it << " " << flush;

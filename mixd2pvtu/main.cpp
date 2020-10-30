@@ -45,7 +45,7 @@ int main(int argc, char **argv) {
 
     if (mype==0)
     {
-        int check = mkdir("output", 0777);
+        int check = mkdir(settings->getOutpath().c_str(), 0777);
         if (!check)
             printf("Output directory created\n");
         else {
