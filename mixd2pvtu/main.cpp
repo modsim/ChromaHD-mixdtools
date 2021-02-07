@@ -1,7 +1,3 @@
-/***************************************************************************************************
-Name        : 2D_Unsteady_Diffusion.cpp
- ***************************************************************************************************/
-
 #include "settings.h"
 #include "tet.h"
 #include "postProcessor.h"
@@ -10,15 +6,8 @@ Name        : 2D_Unsteady_Diffusion.cpp
 #include <sys/types.h>
 
 int main(int argc, char **argv) {
-    /***************************************************************************************************
-      MAIN PROGRAM FLOW
-      1. Pre-Processing Stage
-      1.1. Settings
-      1.2. Mesh
-      3. Post-Processing Stage
-     ***************************************************************************************************/
 
-    int mype, npes;
+    int mype, npes;             // current processor, number of processors
     double starttime;
 
     inputSettings*  settings    = new inputSettings(argc, argv);
@@ -35,7 +24,6 @@ int main(int argc, char **argv) {
 
     if(mype == 0) cout << "MIXD to PVTU converter."  << endl;
 
-
     // Pre-Processing Stage
     starttime = MPI_Wtime(); //timer starts
     settings->prepareSettings();
@@ -43,6 +31,7 @@ int main(int argc, char **argv) {
 
     if (mype==0) cout << endl << "================ POST-PROCESSING =================" << endl;
 
+    // Check and create output directory
     if (mype==0)
     {
         int check = mkdir(settings->getOutpath().c_str(), 0777);
@@ -53,14 +42,13 @@ int main(int argc, char **argv) {
         }
     }
 
+    // For every timestep, process the data and write it out.
     int nrec = settings->getNrec();
     for (int irec=0; irec<nrec; irec++)
     {
         mesh->processData(settings, irec);
         postP->postProcessorControl(settings, mesh, irec);
     }
-
-
 
     if (mype==0) cout << endl << "====================== END =======================" << endl;
     if(mype==0) cout << "Elapsed time is " << fixed << MPI_Wtime()-starttime << endl;

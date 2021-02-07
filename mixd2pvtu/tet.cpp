@@ -16,6 +16,7 @@ void tetMesh::prepareMesh(inputSettings* settings)
     if (mype==0) cout << endl << "====================== MESH ======================" << endl;
 
     readMeshFiles(settings);
+    getTimesteps(settings);
     formLocalNodeList();
     localizeNodeCoordinates();
 
@@ -28,16 +29,52 @@ void tetMesh::prepareMesh(inputSettings* settings)
     return;
 }
 
+void tetMesh::getTimesteps(inputSettings * settings)
+{
+    int mype;
+    MPI_Comm_rank(MPI_COMM_WORLD, &mype);
+
+    if (!settings->getDtFile().empty())
+    {
+        ifstream dtFileD;
+        string lineString;
+        char * pEnd;
+
+        dtFileD.open(settings->getDtFile(),ios::in);
+        if (dtFileD.is_open()==false)
+        {
+            cout << "Unable to open input file for pe: " << mype << "! Aborting... " << endl;
+            MPI_Finalize();
+            exit(0);
+        }
+
+        while (!dtFileD.eof())
+        {
+            // Get a line and store in lineString
+            getline(dtFileD, lineString, '\n');
+            if (!lineString.empty())
+                timesteps.push_back(std::strtod(lineString.c_str(), &pEnd));
+        }
+
+    }
+    else if (settings->getDt() != 0)
+    {
+        for (auto it = 0; it != settings->getNrec(); it++)
+            timesteps.push_back(it*settings->getDt());
+    }
+    else
+    {
+        for (auto it = 0; it != settings->getNrec(); it++)
+            timesteps.push_back(it);
+    }
+
+}
+
+
 void tetMesh::processData(inputSettings* settings, int irec)
 {
-    //given irec, find file and offset
-    // first, list number of files = nDataFiles
-    // find sizes of each files and put it in a vector: vDataFileSizes
-
-
     readDataFile(settings, irec);
     localizeData();
-
 }
 
 void tetMesh::getFileAndOffset(inputSettings* settings, int irec, string& dataFile, MPI_Offset& totalOffset)
@@ -640,9 +677,13 @@ void tetMesh::quickSort(int* arr, int* index, int left, int right)
     return;
 }
 
+/*
+ * Read scalar data and localize it to each process so that the data can be split.
+ */
 void tetMesh::localizeData()
 {
-    int n; //counter
+
+    int n;      //counter
     int in;     // node number in global
     int ipe;    // pe number where 'in' lies
     int inc;    // offset of in on ipe

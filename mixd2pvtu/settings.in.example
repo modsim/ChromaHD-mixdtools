@@ -12,3 +12,6 @@ ndf 4               # number of degrees of freedom (variables in file)
 nrec 2              # number of records (timesteps)
 nrecstride 1        # nrec stride length
 nrecoffset 0        # nrec offset
+
+dtFile timesteps.txt
+dt 100

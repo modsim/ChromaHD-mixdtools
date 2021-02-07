@@ -1,9 +1,8 @@
 #include "postProcessor.h"
 
-/***************************************************************************************************
-  preProcessorControl
- **************************************************************************************************/
-
+/*********************************************************************************************
+ * Control function for postprocessor class.
+**********************************************************************************************/
 void postProcessor::postProcessorControl(inputSettings* argSettings, tetMesh* argMesh, int irec)
 {
     int mype, npes;             // my processor rank and total number of processors
@@ -12,7 +11,6 @@ void postProcessor::postProcessorControl(inputSettings* argSettings, tetMesh* ar
     mesh = argMesh;
     settings = argSettings;
 
-    /* if (mype==0) cout << "Writing irec: " << irec << endl; */
     if (mype == 0) cout << "\rrec " << irec << ": writing..." << flush;
     vtkVisualization(irec);
     if (mype == 0) cout << "\rrec " << irec << ": done!     " << endl;;
@@ -20,9 +18,9 @@ void postProcessor::postProcessorControl(inputSettings* argSettings, tetMesh* ar
     return;
 }
 
-/***************************************************************************************************
-// Main visualization function
- ***************************************************************************************************/
+/*********************************************
+ * Main visualization function: writes pvtu files
+*********************************************/
 void postProcessor::vtkVisualization(int irec)
 {
     int nn  = mesh->getNn();
@@ -77,6 +75,14 @@ void postProcessor::vtkVisualization(int irec)
     unsGrid->SetPoints(outputPoints);
     unsGrid->SetCells(10,connectivity);
 
+    vtkSmartPointer<vtkFieldData> TimeValue = vtkSmartPointer<vtkFieldData>::New();
+    vtkSmartPointer<vtkDoubleArray> TimeValueArray = vtkSmartPointer<vtkDoubleArray>::New();
+    TimeValueArray->SetName("TimeValue");
+    TimeValueArray->SetNumberOfTuples(1);
+    TimeValueArray->SetNumberOfValues(1);
+    TimeValueArray->SetTuple1(0, mesh->timesteps[irec]);
+    TimeValue->AddArray(TimeValueArray);
+    unsGrid->SetFieldData(TimeValue);
 
     vector<vtkSmartPointer<vtkDoubleArray>> scalars(ndf);
     for(int idf=0; idf < ndf ; idf++)
@@ -91,14 +97,7 @@ void postProcessor::vtkVisualization(int irec)
         unsGrid->GetPointData()->SetActiveScalars(dummy.c_str());
     }
 
-
-    // Now we write the "Title.pvtu" file which contains the informtaiton about other files.
-    // Can be used to add more prefixes to the piece filenames. Folders/subfolders and such.
-    // Mostly unnecessary
-    /* auto pwriter = vtkSmartPointer<LDEMVTKXMLPUnstructuredDataWriter>::New(); */
-
     vtkSmartPointer<vtkXMLPUnstructuredGridWriter> pwriter = vtkSmartPointer<vtkXMLPUnstructuredGridWriter>::New();
-
 
     /* dummy = "output/" */
     dummy = settings->getOutpath() + "/";

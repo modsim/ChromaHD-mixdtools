@@ -22,6 +22,7 @@ inputSettings::inputSettings(int largc, char** largv)
     dt         = 1.0;
     spacetime  = 0;
     outpath    = "output";
+    dtFile     = "";
 }
 
 /***************************************************************************************************
@@ -109,6 +110,8 @@ void inputSettings::readSettingsFile()
                 iss >> spacetime;
             else if(dummyString == "dt")
                 iss >> dt;
+            else if(dummyString == "dtFile")
+                iss >> dtFile;
             else if(dummyString == "outpath")
                 iss >> outpath;
             else
@@ -142,19 +145,22 @@ void inputSettings::printSettings()
     if (mype == 0)
     {
         cout << endl << "==================== SETTINGS ====================" << endl;
-        cout << "Title of the simualation              : " << title		<< endl;
-        cout << "Spacetime                             : " << spacetime << endl;
-        cout << "Name of the minf file                 : " << minfFile	<< endl;
-        cout << "Name of the mxyz file                 : " << mxyzFile	<< endl;
-        cout << "Name of the mien file                 : " << mienFile	<< endl;
-        cout << "Name of the mrng file                 : " << mrngFile	<< endl;
-        cout << "Number of variables in data           : " << ndf		<< endl;
-        cout << "Number of Timesteps                   : " << nrec		<< endl;
-        cout << "Number of Timesteps Stride            : " << nrecstride<< endl;
-        cout << "Number of Timesteps Offset            : " << nrecoffset<< endl;
+
+        cout << "Title of the simualation              : " << title		      << endl;
+        cout << "Spacetime                             : " << spacetime       << endl;
+        cout << "Name of the minf file                 : " << minfFile	      << endl;
+        cout << "Name of the mxyz file                 : " << mxyzFile	      << endl;
+        cout << "Name of the mien file                 : " << mienFile	      << endl;
+        cout << "Name of the mrng file                 : " << mrngFile	      << endl;
+        cout << "Number of variables in data           : " << ndf		      << endl;
+        cout << "Number of Timesteps                   : " << nrec		      << endl;
+        cout << "Number of Timesteps Stride            : " << nrecstride      << endl;
+        cout << "Number of Timesteps Offset            : " << nrecoffset      << endl;
         cout << "Number of Data Files                  : " << dataFiles.size()<< endl;
-        cout << "Output Directory                      : " << outpath << endl;
+        cout << "Output Directory                      : " << outpath         << endl;
+        cout << "Timesteps File                        : " << dtFile          << endl;
         cout << "Data Files                            : " << flush;
+
         for(vector<string>::iterator it = dataFiles.begin(); it != dataFiles.end(); ++it)
             cout << *it << " " << flush;
         cout << endl;

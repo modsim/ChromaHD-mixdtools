@@ -149,6 +149,9 @@ class tetMesh
         void prepareMesh(inputSettings*);
         void processData(inputSettings* settings, int irec);
         void getFileAndOffset(inputSettings* settings, int irec, string& dataFile, MPI_Offset& totalOffset);
+        void getTimesteps(inputSettings * settings);
+
+        std::vector<double> timesteps;
 };
 
 #endif /* TET_H_ */

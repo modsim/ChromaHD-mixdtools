@@ -30,6 +30,7 @@ class inputSettings
         int       nrecoffset;  // initial offset
         int       spacetime;    // if mesh is spacetime
         double    dt;          // time step size
+        string    dtFile;
         string    outpath;     // output directory
 
         // METHODS
@@ -58,6 +59,7 @@ class inputSettings
         int            getNrecoffset()          {return nrecoffset;};
         int            getSpacetime()           {return spacetime;};
         double         getDt()                  {return dt;};
+        string         getDtFile()              {return dtFile;};
         string         getOutpath()             {return outpath;};
 
         //INTERFACE METHOD
