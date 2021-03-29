@@ -1,5 +1,5 @@
 
-#include "mixd.hpp"
+#include "../mixdclass/mixd.hpp"
 
 
 void printUsage(char *binaryName)
