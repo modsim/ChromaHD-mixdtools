@@ -14,6 +14,7 @@
 // TODO: test 2-order meshes
 // TODO: stop using endian library? be consistent with write functions?
 // TODO: change from templating ORDER to using it as a function parameter or mesh attribute.
+// NOTE: Spacetime features are not required because the relevant mtbl/mprd files just have to doubled. XNS handles the +nnspace offset within the code.
 
 int readfile(std::string filename, Mesh &mesh)
 {
@@ -269,7 +270,13 @@ int main(int argc, char * argv[])
         {
             case 'm':
                 if(strcmp(optarg, "st")==0 || strcmp(optarg, "spacetime")==0)
-                    generate_st = true;
+                {
+                    std::cout << "Spacetime meshes are not supported." << std::endl;
+                    std::cout << "XNS handles the +nnspace offset internally." << std::endl;
+                    std::cout << "Doubling the semidiscrete mxyz, mtbl, and mprd files are sufficient for conversion to spacetime." << std::endl;
+                    exit(-1);
+                    /* generate_st = true; */
+                }
                 else if(strcmp(optarg, "sd")==0 || strcmp(optarg, "semidiscrete")==0)
                     generate_st = false;
                 else{ printUsage(argv[0]); return 1; }
