@@ -19,13 +19,12 @@ make
 
 # Notes
 - [VTK 7.1 Update and VTK with MPI](https://github.com/libMesh/libmesh/issues/1179)
-- Works only on semidiscrete meshes
 - minf file nn/ne ordering matters 
 - Timestepping implemented (nrec)
 - Timestriding implemented (nrecstride. use ncrecstride=2 for spacetime data out) 
-- Timestep lengths are not used 
+- Timestep lengths are either constant or read from line separated text file
 - Example settings file is provided with source code
-- ISSUE: for large meshes, it gets stuck after mxyz read.
+- [PROB] For large meshes on single core, nnc*nsd etc is larger than INT_MAX, and overflows the int count parameters in MPI calls
 
 # Todos
 - [ ] Error handling & safety
@@ -47,6 +46,7 @@ make
 - [X] Implement spacetime mesh support
 - [X] Implement nrecoffset 
 - [ ] Implement mixdclass to handle mixd data??
-- [ ] -march, -mtune flags?
+- [X] -march, -mtune flags?
 - [X] Allow stringing together multiple data files (with offset of 1 in between them)
 - [ ] Timing outputs for different sections of the code. Also per data write. 
+- [ ] Fix MPI int count overflows for large meshes. 
