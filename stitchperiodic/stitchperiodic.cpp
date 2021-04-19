@@ -58,7 +58,7 @@ bool operator< (const Node & n1, const Node & n2)
     return ( n1.id() < n2.id() );
 }
 
-void getArgs(int argc, char * argv[], int& ndf, int& nts, int& rng, int& spacetimeupper)
+void getArgs(int argc, char * argv[], int& ndf, int& nts, int& rng, int& spacetimeupper, int& jump)
 {
     if (argc < 2)
     {
@@ -88,12 +88,13 @@ void getArgs(int argc, char * argv[], int& ndf, int& nts, int& rng, int& spaceti
             {"nts",  required_argument, 0, 't'},
             {"rng",  required_argument, 0, 'r'},
             {"spacetime-upper",  no_argument, 0, 's'},
+            {"jump",  no_argument, 0, 'j'},
             {0, 0, 0, 0}
         };
         /* getopt_long stores the option index here. */
         int option_index = 0;
 
-        c = getopt_long (argc, argv, "n:t:r:s", long_options, &option_index);
+        c = getopt_long (argc, argv, "n:t:r:sj:", long_options, &option_index);
 
         /* Detect the end of the options. */
         if (c == -1)
@@ -114,6 +115,7 @@ void getArgs(int argc, char * argv[], int& ndf, int& nts, int& rng, int& spaceti
             case 'n': ndf = std::atoi(optarg); break;
             case 't': nts = std::atoi(optarg); break;
             case 'r': rng = std::atoi(optarg); break;
+            case 'j': jump= std::atoi(optarg); break;
             case 's': spacetimeupper = 1; break;
             case '?':
                 /* getopt_long already printed an error message. */
@@ -137,8 +139,9 @@ int main(int argc, char * argv[])
     int nts=1;
     int rng=0;
     int spacetimeupper=0;
+    int jump=0; // To jump over timesteps from data.all/data.in. Helps with flow bdf2 output, set j=1
 
-    getArgs(argc, argv, ndf, nts, rng, spacetimeupper);
+    getArgs(argc, argv, ndf, nts, rng, spacetimeupper, jump);
 
     std::cout << "ndf: " << ndf << std::endl;
     std::cout << "nts: " << nts << std::endl;
@@ -148,6 +151,8 @@ int main(int argc, char * argv[])
 
     long ne, nn;
     mixd::readminf("../mesh/minf", &nn, &ne);
+
+    if ((spacetimeupper == 1) && (nn % 2 != 0)) exit(-1); //exit if not properly spacetime
 
     const int nsd = 3;  // 3D only!!!
     const int nen = 4;  // tetrahedra only!!!
@@ -224,11 +229,10 @@ int main(int argc, char * argv[])
     if (spacetimeupper == 1)
         offset=nn/2;
 
-
     SimpleProgress sp(0, nts, 20);
     for(int i=0; i<nts; i++)
     {
-        data.read(i);
+        data.read(jump+i);
         int nodes_count = 0;
         for(auto it:nodes_rng)
         {
