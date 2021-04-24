@@ -79,7 +79,8 @@ void printUsage(char *binaryName)
 
     std::cout << "Use -readmprd to extend an existing mprd file with additional perdiodicity information." << std::endl;
     std::cout << "Use -readmtbl to correctly handle doubled interface nodes in the given mesh." << std::endl;
-    std::cout << "Ensure that the input mesh is semi-discrete." << std::endl;
+    std::cout << "Ensure that the input mesh is semi-discrete!!" << std::endl;
+    std::cout << "Run the program on the semi-discrete mesh generated after gmsh2mixdv2 -d 4 -o 1 ..." << std::endl;
     std::cout << "Double the mprd file for space-time meshes. XNS should handle the +nnspace offset." << std::endl;
 
 }
