@@ -10,6 +10,7 @@ int main(int argc, char * argv[])
         std::cout << "checkperiodic: check if the solutions are truly periodic." <<std::endl;
         std::cout << "Run this program in the mesh directory." << std::endl;
         std::cout << "Usage: ./checkperiodic <data_file> -n/--ndf <ndf> -t/--nts <nts>" << std::endl;
+        std::cout << "WARNING, MIGHT NOT BE CORRECT" << std::endl;
         exit(-1);
     }
 
