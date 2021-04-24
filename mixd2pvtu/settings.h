@@ -36,6 +36,7 @@ class inputSettings
         // METHODS
         void readSettingsFile();
         void printSettings();
+        void readCommandlineArguments();
 
     protected:
 
