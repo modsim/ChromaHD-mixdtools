@@ -1,6 +1,6 @@
 # MIXD2PVTU
 
-This program can convert MIXD files to PVTU for visualization. It is MPI enabled. The source code is derived from Loic Wendling's projects given out to students of ParaCompSS19 and modified to handle tetrahedrons. 
+This program can convert MIXD files to PVTU for visualization. It is MPI enabled. The source code is derived from Loic Wendling's projects given out to students of ParaCompSS19 and modified to handle tetrahedrons. The code is general enough that changing constants.h is sufficient to handle other unstructured element types as well.  
 
 The code is relatively crude, but functional. 
 
@@ -15,7 +15,7 @@ cmake ..
 make
 ```
 
-`mpirun -np 4 settings.in`
+`mpirun -np 4 mixd2pvtu settings.in`
 
 # Notes
 - [VTK 7.1 Update and VTK with MPI](https://github.com/libMesh/libmesh/issues/1179)
@@ -50,3 +50,5 @@ make
 - [X] Allow stringing together multiple data files (with offset of 1 in between them)
 - [ ] Timing outputs for different sections of the code. Also per data write. 
 - [ ] Fix MPI int count overflows for large meshes. 
+- [ ] Dynamic handling of element types.
+- [ ] Rename tetMesh to just Mesh.

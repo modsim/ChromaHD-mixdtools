@@ -32,9 +32,6 @@ void postProcessor::vtkVisualization(int irec)
     int mec = mesh->getMec();
     int ndf = mesh->getNdf();
 
-    double * dataL = mesh->getDataL();
-
-    /* int * nodeLToG = mesh->getNodeLToG(); */
 
     int mype, npes;             // my processor rank and total number of processors
 
@@ -75,26 +72,32 @@ void postProcessor::vtkVisualization(int irec)
     unsGrid->SetPoints(outputPoints);
     unsGrid->SetCells(10,connectivity);
 
-    vtkSmartPointer<vtkFieldData> TimeValue = vtkSmartPointer<vtkFieldData>::New();
-    vtkSmartPointer<vtkDoubleArray> TimeValueArray = vtkSmartPointer<vtkDoubleArray>::New();
-    TimeValueArray->SetName("TimeValue");
-    TimeValueArray->SetNumberOfTuples(1);
-    TimeValueArray->SetNumberOfValues(1);
-    TimeValueArray->SetTuple1(0, mesh->timesteps[irec]);
-    TimeValue->AddArray(TimeValueArray);
-    unsGrid->SetFieldData(TimeValue);
 
-    vector<vtkSmartPointer<vtkDoubleArray>> scalars(ndf);
-    for(int idf=0; idf < ndf ; idf++)
+    if (irec != -1)
     {
-        scalars[idf] = vtkSmartPointer<vtkDoubleArray>::New();
-        dummy = "scalar_";
-        dummy.append(to_string(idf));
-        scalars[idf]->SetName(dummy.c_str());
-        for(int inl=0; inl<nnl; inl++)
-            scalars[idf]->InsertNextValue(dataL[inl*ndf + idf]);
-        unsGrid->GetPointData()->AddArray(scalars[idf]);
-        unsGrid->GetPointData()->SetActiveScalars(dummy.c_str());
+
+        vtkSmartPointer<vtkFieldData> TimeValue = vtkSmartPointer<vtkFieldData>::New();
+        vtkSmartPointer<vtkDoubleArray> TimeValueArray = vtkSmartPointer<vtkDoubleArray>::New();
+        TimeValueArray->SetName("TimeValue");
+        TimeValueArray->SetNumberOfTuples(1);
+        TimeValueArray->SetNumberOfValues(1);
+        TimeValueArray->SetTuple1(0, mesh->timesteps[irec]);
+        TimeValue->AddArray(TimeValueArray);
+        unsGrid->SetFieldData(TimeValue);
+
+        double * dataL = mesh->getDataL();
+        vector<vtkSmartPointer<vtkDoubleArray>> scalars(ndf);
+        for(int idf=0; idf < ndf ; idf++)
+        {
+            scalars[idf] = vtkSmartPointer<vtkDoubleArray>::New();
+            dummy = "scalar_";
+            dummy.append(to_string(idf));
+            scalars[idf]->SetName(dummy.c_str());
+            for(int inl=0; inl<nnl; inl++)
+                scalars[idf]->InsertNextValue(dataL[inl*ndf + idf]);
+            unsGrid->GetPointData()->AddArray(scalars[idf]);
+            unsGrid->GetPointData()->SetActiveScalars(dummy.c_str());
+        }
     }
 
     vtkSmartPointer<vtkXMLPUnstructuredGridWriter> pwriter = vtkSmartPointer<vtkXMLPUnstructuredGridWriter>::New();

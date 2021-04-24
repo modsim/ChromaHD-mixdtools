@@ -44,6 +44,12 @@ int main(int argc, char **argv) {
 
     // For every timestep, process the data and write it out.
     int nrec = settings->getNrec();
+    if(nrec==0)
+    {
+        postP->postProcessorControl(settings, mesh, -1);
+    }
+
+
     for (int irec=0; irec<nrec; irec++)
     {
         mesh->processData(settings, irec);
