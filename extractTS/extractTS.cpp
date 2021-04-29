@@ -1,9 +1,10 @@
 #include "mixd.hpp"
 
-
 void printUsage(char *binaryName)
 {
     std::cout << "MIXD tool to extract a timestep from data.all." << std::endl;
+    std::cout << "Might be better to just use `split -n <ts>/<nts> data.all > data.extracted`" << std::endl;
+    std::cout << "Might be better to just use scripts/mslice" << std::endl;
     std::cout << "Usage: " << binaryName << " -f <data.all> -m <minf> -n <ndf> -t <timestep> -o <data.in>" << std::endl;
     std::cout << "<timestep> count starts with 0 as data.all stores initial state." << std::endl;
 }
@@ -46,7 +47,6 @@ int main(int argc, char **argv)
     /*     return 1; */
     /* } */
 
-
     InputParser input(argc, argv);
     if(input.cmdOptionExists("-h") || input.cmdOptionExists("--help")) {
         printUsage(argv[0]);
@@ -61,7 +61,6 @@ int main(int argc, char **argv)
 
     int ts = std::stoi(ts_str);
     int ndf = std::stoi(ndf_str);
-
 
     try
     {
