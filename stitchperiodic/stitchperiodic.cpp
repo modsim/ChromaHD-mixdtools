@@ -58,13 +58,15 @@ bool operator< (const Node & n1, const Node & n2)
     return ( n1.id() < n2.id() );
 }
 
-void getArgs(int argc, char * argv[], int& ndf, int& nts, int& rng, int& spacetimeupper, int& jump)
+void getArgs(int argc, char * argv[], int& ndf, int& nts, int& rng, int& spacetimeupper, int& jump, bool& dryRun)
 {
     if (argc < 2)
     {
         std::cout << "stitchperiodic: Stitch periodically linked simulations together." <<std::endl;
         std::cout << "Run this program in the solution directory." << std::endl;
         std::cout << "Usage: ./stitchperiodic <data_file> -n/--ndf <ndf> -t/--nts <nts> -r/--rng <rng> -s/--spacetime-upper" << std::endl;
+        std::cout << "      > FLOW: ./stitchperiodic data.out -r 2 -n 4 -t 2" << std::endl;
+        std::cout << "      > MASS: ./stitchperiodic data.all -r 2 -n 2 -t <nts>" << std::endl;
         std::cout << "Generates rng.xyz and rng.data files that must be copied to the  new solution directory." << std::endl;
         std::cout << "Writes data from lower slab if spacetime-upper (-s) is not specified." << std::endl;
         std::cout << "Ensure that xns.in is updated accordingly." << std::endl;
@@ -88,13 +90,14 @@ void getArgs(int argc, char * argv[], int& ndf, int& nts, int& rng, int& spaceti
             {"nts",  required_argument, 0, 't'},
             {"rng",  required_argument, 0, 'r'},
             {"spacetime-upper",  no_argument, 0, 's'},
-            {"jump",  no_argument, 0, 'j'},
+            {"jump",  required_argument, 0, 'j'},
+            {"dry-run", no_argument, 0, 'd'},
             {0, 0, 0, 0}
         };
         /* getopt_long stores the option index here. */
         int option_index = 0;
 
-        c = getopt_long (argc, argv, "n:t:r:sj:", long_options, &option_index);
+        c = getopt_long (argc, argv, "n:t:r:sj:d", long_options, &option_index);
 
         /* Detect the end of the options. */
         if (c == -1)
@@ -117,6 +120,7 @@ void getArgs(int argc, char * argv[], int& ndf, int& nts, int& rng, int& spaceti
             case 'r': rng = std::atoi(optarg); break;
             case 'j': jump= std::atoi(optarg); break;
             case 's': spacetimeupper = 1; break;
+            case 'd': dryRun = true; break;
             case '?':
                 /* getopt_long already printed an error message. */
                 break;
@@ -124,7 +128,7 @@ void getArgs(int argc, char * argv[], int& ndf, int& nts, int& rng, int& spaceti
         }
     }
 
-    if (optind >= argc)
+    if ((optind >= argc) && !dryRun)
     {
         std::cout << "No data file provided!" << std::endl;
         exit(-1);
@@ -140,14 +144,16 @@ int main(int argc, char * argv[])
     int rng=0;
     int spacetimeupper=0;
     int jump=0; // To jump over timesteps from data.all/data.in. Helps with flow bdf2 output, set j=1
+    bool dryRun=false;
 
-    getArgs(argc, argv, ndf, nts, rng, spacetimeupper, jump);
+    getArgs(argc, argv, ndf, nts, rng, spacetimeupper, jump, dryRun);
 
     std::cout << "ndf: " << ndf << std::endl;
     std::cout << "nts: " << nts << std::endl;
     std::cout << "rng: " << rng << std::endl;
     std::cout << "spacetime upper: " << spacetimeupper << std::endl;
-    std::cout << "data: " << argv[optind] << std::endl;
+    std::cout << "dry run: " << dryRun << std::endl;
+    /* std::cout << "data: " << argv[optind] << std::endl; */
 
     long ne, nn;
     mixd::readminf("../mesh/minf", &nn, &ne);
@@ -174,7 +180,6 @@ int main(int argc, char * argv[])
     mixd::MixdFile<int>    mien("../mesh/mien", ne, nen);
     mixd::MixdFile<int>    mrng("../mesh/mrng", ne, nef);
     mixd::MixdFile<double> mxyz("../mesh/mxyz", nn, nsd);
-    mixd::MixdFile<double> data(argv[optind], nn, ndf,false);
 
     mien.read();
     mrng.read();
@@ -199,6 +204,8 @@ int main(int argc, char * argv[])
 
     std::cout << "Number of RNG nodes (nn_rng): " << nodes_rng.size() << std::endl;
 
+    if (dryRun) exit(0);
+
     /* mixd::MixdFile<int>    rngnodes("rng.nodeids", nodes_rng.size(), 1, false); */
     /* int index=0; */
     /* for(auto it:nodes_rng) */
@@ -212,9 +219,9 @@ int main(int argc, char * argv[])
     // remove previous rng.data file
     // Used because I append data instead of writing for now
     std::remove("rng.data");
-    std::remove("temp");
     mixd::MixdFile<double> datarng("rng.data", nodes_rng.size(), ndf, false);
     mixd::MixdFile<double> rngxyz("rng.xyz", nodes_rng.size(), nsd, false);
+    mixd::MixdFile<double> data(argv[optind], nn, ndf,false);
 
     int count =0;
     for (auto it:nodes_rng)
@@ -228,6 +235,7 @@ int main(int argc, char * argv[])
     long offset=0;
     if (spacetimeupper == 1)
         offset=nn/2;
+
 
     SimpleProgress sp(0, nts, 20);
     for(int i=0; i<nts; i++)
