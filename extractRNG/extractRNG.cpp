@@ -166,7 +166,7 @@ int main(int argc, char * argv[])
     /* std::cout << "data: " << argv[optind] << std::endl; */
 
     long ne, nn;
-    mixd::readminf("minf", &nn, &ne);
+    mixd::readminf("../mesh/minf", &nn, &ne);
 
     if ((spacetimeupper == 1) && (nn % 2 != 0)) exit(-1); //exit if not properly spacetime
 
@@ -200,6 +200,8 @@ int main(int argc, char * argv[])
     int n1 = -1; int n2 = -1; int n3 = -1;
     int newid;
 
+    // Iterate over elements::faces
+    // and save node and triangle information
     for(int ie=0; ie<ne; ie++)
     {
         for(int iface=0; iface<nef; iface++)
@@ -218,6 +220,8 @@ int main(int argc, char * argv[])
         }
     }
 
+    // for every triangle(i)::node(j)
+    // renumber nodes by position in vector
     std::vector<Node> vNodes(nodes_rng.begin(), nodes_rng.end());
     for (int i=0; i< tris.size(); i++)
         for(int j=0; j<3; j++)
@@ -233,17 +237,53 @@ int main(int argc, char * argv[])
 
     mixd::MixdFile<int> rngmien("rng.mien", tris.size(), 3, false);
     mixd::MixdFile<double> rngmxyz("rng.mxyz", vNodes.size(), 3, false);
+    mixd::MixdFile<double> data(argv[optind], nn, ndf,false);
 
+    // remove previous rng.data file
+    // Used because I append data instead of writing for now
+    std::remove("rng.data");
+    mixd::MixdFile<double> rngdata("rng.data", nodes_rng.size(), ndf, false);
+
+    // Prepare mien file
     for (int i=0; i<tris.size(); i++)
         for(int j=0; j<3; j++)
             rngmien(i,j) = tris.at(i)._nodes[j];
 
+    std::cout << "rngmien ready..." << std::endl;
+
+    // Prepare mxyz file
     for (int i=0; i<vNodes.size(); i++)
         for(int j=0;j<3; j++)
             rngmxyz(i,j) = vNodes.at(i)._coords[j];
 
-    //NOTE: currently only writing a mien based on existing mxyz.
-    //Ideally, we'd renumber the nodes as well.
+    std::cout << "rngmxyz ready..." << std::endl;
+
+    long offset=0;
+    if (spacetimeupper == 1)
+        offset=nn/2;
+
+    SimpleProgress sp(0, nts, 20);
+    for(int i=0; i<nts; i++)
+    {
+        data.read(jump+i);
+        int nodes_count = 0;
+        for(auto it:nodes_rng)
+        {
+            for(int idf=0; idf<ndf; idf++)
+            {
+                // if spacetimeupper, get data from upper slab
+                // works because nodes_rng only captures lower slab nodes
+                rngdata(nodes_count, idf) = data(offset + it.id()-1, idf);
+            }
+            nodes_count++;
+        }
+        rngdata.append();
+        /* datarng.write(i); // NOTE: write(i) doesn't write properly... zeroes previous data */
+        sp.printIfHitNext(i);
+
+    }
+    std::cout << "rngdata ready..." << std::endl;
+
     rngmien.write();
     rngmxyz.write();
 
