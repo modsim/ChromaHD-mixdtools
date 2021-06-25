@@ -49,9 +49,16 @@ void postProcessor::vtkVisualization(int irec)
     pcoords->SetNumberOfTuples(nnl);
 
 
-    //vtkDoubleArray type pcoords is filled with the data in meshPoints.
+    // vtkDoubleArray type pcoords is filled with the data in meshPoints.
+    // Typically, I deal with meshes embedded in 3D space
     for (int i=0; i<nnl; i++)
         pcoords->SetTuple3(i,mesh->getLNode(i)->getX(),mesh->getLNode(i)->getY(),mesh->getLNode(i)->getZ());
+
+    // NOTE: This is only necessary for 2D meshes embedded in 2D space
+    // It is just easier to add a z coordinate to your mesh, with 0 value
+    // by modifying your mxyz file, making your space 3D and nsd==3.
+    /* for (int i=0; i<nnl; i++) */
+    /*     pcoords->SetTuple2(i,mesh->getLNode(i)->getX(),mesh->getLNode(i)->getY()); */
 
     //vtkPoints type outputPoints is filled with the data in pcoords.
     vtkSmartPointer<vtkPoints> outputPoints = vtkSmartPointer<vtkPoints>::New();
@@ -70,8 +77,7 @@ void postProcessor::vtkVisualization(int irec)
 
     vtkSmartPointer<vtkUnstructuredGrid> unsGrid = vtkSmartPointer<vtkUnstructuredGrid>::New();
     unsGrid->SetPoints(outputPoints);
-    unsGrid->SetCells(10,connectivity);
-
+    unsGrid->SetCells(VTKElemType, connectivity);
 
     if (irec != -1)
     {
