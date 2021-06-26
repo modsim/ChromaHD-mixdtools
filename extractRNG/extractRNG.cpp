@@ -74,7 +74,7 @@ bool operator< (const Node & n1, const Node & n2)
     return ( n1.id() < n2.id() );
 }
 
-void getArgs(int argc, char * argv[], int& ndf, int& nts, int& rng, int& spacetimeupper, int& jump)
+void getArgs(int argc, char * argv[], int& ndf, int& nts, int& rng, int& spacetimeupper, int& jump, std::string& meshdir)
 {
     if (argc < 2)
     {
@@ -103,6 +103,7 @@ void getArgs(int argc, char * argv[], int& ndf, int& nts, int& rng, int& spaceti
             {"ndf",  required_argument, 0, 'n'},
             {"nts",  required_argument, 0, 't'},
             {"rng",  required_argument, 0, 'r'},
+            {"meshdir",  required_argument, 0, 'm'},
             {"spacetime-upper",  no_argument, 0, 's'},
             {"jump",  no_argument, 0, 'j'},
             {0, 0, 0, 0}
@@ -110,7 +111,7 @@ void getArgs(int argc, char * argv[], int& ndf, int& nts, int& rng, int& spaceti
         /* getopt_long stores the option index here. */
         int option_index = 0;
 
-        c = getopt_long (argc, argv, "n:t:r:sj:", long_options, &option_index);
+        c = getopt_long (argc, argv, "n:t:r:sj:m:", long_options, &option_index);
 
         /* Detect the end of the options. */
         if (c == -1)
@@ -133,6 +134,7 @@ void getArgs(int argc, char * argv[], int& ndf, int& nts, int& rng, int& spaceti
             case 'r': rng = std::atoi(optarg); break;
             case 'j': jump= std::atoi(optarg); break;
             case 's': spacetimeupper = 1; break;
+            case 'm': meshdir=optarg; break;
             case '?':
                 /* getopt_long already printed an error message. */
                 break;
@@ -156,17 +158,19 @@ int main(int argc, char * argv[])
     int rng=0;
     int spacetimeupper=0;
     int jump=0; // To jump over timesteps from data.all/data.in. Helps with flow bdf2 output, set j=1
+    std::string meshdir="../mesh";
 
-    getArgs(argc, argv, ndf, nts, rng, spacetimeupper, jump);
+    getArgs(argc, argv, ndf, nts, rng, spacetimeupper, jump, meshdir);
 
-    /* std::cout << "ndf: " << ndf << std::endl; */
-    /* std::cout << "nts: " << nts << std::endl; */
+    std::cout << "ndf: " << ndf << std::endl;
+    std::cout << "nts: " << nts << std::endl;
     std::cout << "rng: " << rng << std::endl;
     std::cout << "spacetime upper: " << spacetimeupper << std::endl;
+    std::cout << "meshdir: " << meshdir << std::endl;
     /* std::cout << "data: " << argv[optind] << std::endl; */
 
     long ne, nn;
-    mixd::readminf("../mesh/minf", &nn, &ne);
+    mixd::readminf(meshdir + "/minf", &nn, &ne);
 
     if ((spacetimeupper == 1) && (nn % 2 != 0)) exit(-1); //exit if not properly spacetime
 
@@ -187,9 +191,9 @@ int main(int argc, char * argv[])
         {0,2,3}
     };
 
-    mixd::MixdFile<int>    mien("../mesh/mien", ne, nen);
-    mixd::MixdFile<int>    mrng("../mesh/mrng", ne, nef);
-    mixd::MixdFile<double> mxyz("../mesh/mxyz", nn, nsd);
+    mixd::MixdFile<int>    mien(meshdir + "/mien", ne, nen);
+    mixd::MixdFile<int>    mrng(meshdir + "/mrng", ne, nef);
+    mixd::MixdFile<double> mxyz(meshdir + "/mxyz", nn, nsd);
 
     mien.read();
     mrng.read();
@@ -206,6 +210,9 @@ int main(int argc, char * argv[])
     {
         for(int iface=0; iface<nef; iface++)
         {
+            // Since mrng files are not changed for spacetime meshes,
+            // We always get node information for the lower slab
+            // Updates in data are handled later with an offset
             if(mrng(ie,iface)==rng)
             {
                 std::vector<int> nodeids;
