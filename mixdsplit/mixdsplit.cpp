@@ -1,13 +1,14 @@
 #include "mixd.hpp"
 #include <cstdint>
+#include <unistd.h>
 #include <filesystem>
 
 void printUsage(char *binaryName)
 {
+    std::cout << binaryName << " [ -m {spacetime mesh directory} ] [-d {data.all}] [-o {splitdata.all}]" << std::endl;
     std::cout << "MIXD tool to separate a chromatography mesh+data into the interstitial and particle domains" << std::endl;
     std::cout << "Run in directory with spacetime data.all. Expects to find ../mesh/{minf,nmap}" << std::endl;
     std::cout << "Automatically uses the top timeslab data. New data is semidiscrete." << std::endl;
-    std::cout << "No input flags expected." << std::endl;
 }
 
 
@@ -27,7 +28,7 @@ int main(int argc, char **argv)
     using namespace std;
     using namespace mixd;
 
-    printUsage(argv[0]);
+    /* printUsage(argv[0]); */
 
     bool spacetime = true;
     bool spacetimeupper = true;
@@ -35,10 +36,47 @@ int main(int argc, char **argv)
     int ndf = 2;
     int idf = 0; // NOTE: Only extracting the first dof
 
-    string minffile = "../mesh/minf";
-    string nmapfile = "../mesh/nmap";
+    char c;
+
+
+    string meshdir  = "../mesh";
     string datafile = "data.all";
     string splitdatafile = "splitdata.all";
+
+    while ((c = getopt(argc, argv, "m:d:o:")) != -1)
+    {
+        switch(c)
+        {
+            case 'm':
+                meshdir = optarg;
+                break;
+            case 'd':
+                datafile = optarg;
+                break;
+            case 'o':
+                splitdatafile = optarg;
+                break;
+            default:
+                printUsage(argv[0]);
+                return 1;
+        }
+    }
+
+    string minffile = meshdir + "/minf";
+    string nmapfile = meshdir + "/nmap";
+
+    if(optind != argc)
+    {
+        printUsage(argv[0]);
+        return 1;
+    }
+
+    std::cout << "meshdir: " << meshdir << std::endl;
+    std::cout << "minffile: " << minffile << std::endl;
+    std::cout << "nmapfile: " << nmapfile << std::endl;
+    std::cout << "datafile: " << datafile << std::endl;
+    std::cout << "splitdatafile: " << splitdatafile << std::endl;
+
 
     try{
 
