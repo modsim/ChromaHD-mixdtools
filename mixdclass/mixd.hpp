@@ -146,6 +146,11 @@ public:
             _data[i] = val;
     }
 
+    inline T max()
+    {
+        return(*std::max_element(_data, _data + _rows * _cols -1));
+    }
+
 
     void transpose()
     {
