@@ -234,6 +234,36 @@ public:
         if(fseek(fid, skip*_rows*_cols*sizeof(T)+rowskip*_cols*sizeof(T), SEEK_SET))
             throw MixdException("could not reposition file pointer");
 
+        if(!isBigEndian())
+            swapbytes((char*)_data, _rows*_cols, sizeof(T));
+
+        size_t itemswritten = fwrite(_data, sizeof(T), _rows*_cols, fid);
+
+        if(itemswritten != _rows*_cols)
+            throw MixdException("Error writing file!");
+
+        // swap back for further use!
+        if(!isBigEndian())
+            swapbytes((char*)_data, _rows*_cols, sizeof(T));
+
+        fclose(fid);
+
+        if(_debug)
+            std::cout << "done!" << std::endl;
+    }
+
+    void append()
+    {
+        if(_debug)
+            std::cout << "Writing file " << _fname << "... " << std::flush;
+
+        FILE *fid = fopen(_fname.c_str(), "ab");
+
+        if (fid == NULL)
+            throw MixdException("could not open file for writing");
+
+        /* if(fseek(fid, 0, SEEK_END)) */
+        /*     throw MixdException("could not reposition file pointer"); */
 
         if(!isBigEndian())
             swapbytes((char*)_data, _rows*_cols, sizeof(T));
