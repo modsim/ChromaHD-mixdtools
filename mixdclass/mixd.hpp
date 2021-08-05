@@ -86,7 +86,7 @@ private:
 
 public:
 
-    MixdFile(const std::string & fname, size_t rows, size_t cols=1, bool debug=true) throw (MixdException)
+    MixdFile(const std::string & fname, size_t rows, size_t cols=1, bool debug=true)
         :   _fname(fname), _rows(rows), _cols(cols), _debug(debug)
     {
         if(_debug)
@@ -169,7 +169,7 @@ public:
     }
 
 
-    void read(size_t skip=0, bool transpose=false, size_t rowskip=0) throw (MixdException)
+    void read(size_t skip=0, bool transpose=false, size_t rowskip=0)
     {
         if(_debug)
         {
@@ -221,7 +221,7 @@ public:
     }
 
 
-    void write(size_t skip=0, size_t rowskip=0) throw (MixdException)
+    void write(size_t skip=0, size_t rowskip=0)
     {
         if(_debug)
             std::cout << "Writing file " << _fname << "... " << std::flush;
@@ -255,7 +255,7 @@ public:
 
 
 #ifdef PARALLEL
-    void read(MPI_Comm & comm, size_t skip=0, bool transpose=false, size_t rowskip=0) throw (MixdException)
+    void read(MPI_Comm & comm, size_t skip=0, bool transpose=false, size_t rowskip=0)
     {
         if(_debug)
         {
@@ -317,7 +317,7 @@ public:
     }
 
 
-    void write(MPI_Comm & comm, size_t skip=0, size_t rowskip=0) throw (MixdException)
+    void write(MPI_Comm & comm, size_t skip=0, size_t rowskip=0)
     {
         if(_debug)
             std::cout << "Writing file " << _fname << "... " << std::flush;
@@ -414,7 +414,7 @@ inline bool valid(const std::string & s)
 }
 
 // retrieve the next non-comment line from file stream
-inline std::string nextValidLine(std::ifstream & file) throw (MixdException)
+inline std::string nextValidLine(std::ifstream & file)
 {
     std::string line("");
 
@@ -479,7 +479,7 @@ inline std::vector<std::string> getValues(const std::string & s)
 
 
 // read ASCII minf file and return number of nodes and elements in nn and ne
-inline void readminf(const std::string & fname, long *nn, long *ne) throw (MixdException)
+inline void readminf(const std::string & fname, long *nn, long *ne)
 {
     std::cout << "Reading minf file " << fname << "... " << std::flush;
 
@@ -539,7 +539,7 @@ inline void readminf(const std::string & fname, long *nn, long *ne) throw (MixdE
 }
 
 // write ASCII minf file
-inline void writeminf(const std::string & fname, long nn, long ne) throw (MixdException)
+inline void writeminf(const std::string & fname, long nn, long ne)
 {
     std::cout << "Writing minf file " << fname << "... " << std::flush;
 
@@ -566,7 +566,7 @@ inline void writeminf(const std::string & fname, long nn, long ne) throw (MixdEx
 }
 
 
-inline void parse_elem_type(const std::string & typestr, int *nsd, int *nen, int *nef=NULL, int *nfn=NULL) throw (MixdException)
+inline void parse_elem_type(const std::string & typestr, int *nsd, int *nen, int *nef=NULL, int *nfn=NULL)
 {
     std::string tmp(typestr);
 
