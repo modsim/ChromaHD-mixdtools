@@ -65,7 +65,7 @@ private:
     // swap bytes according to machine's endianness
     inline void swapbytes(char *array, size_t nelem, size_t elsize)
     {
-        register size_t sizet, sizem, i, j;
+        size_t sizet, sizem, i, j;
         char *bytea, *byteb;
         sizet = elsize;
         sizem = sizet - 1;
