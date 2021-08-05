@@ -1,4 +1,5 @@
 #include "mixd.hpp"
+#include "SimpleProgress.hpp"
 #include <cstdint>
 #include <unistd.h>
 #include <filesystem>
@@ -119,6 +120,7 @@ int main(int argc, char **argv)
             stu_offset = nnspace;
 
 
+        SimpleProgress sp(0, nts, 20);
         for(int its=0; its<nts; its++)
         {
             data.read(its);
@@ -130,7 +132,10 @@ int main(int argc, char **argv)
                 }
             }
             newdata.append();
+            sp.printIfHitNext(its);
         }
+
+        std::cout << "done!" << std::endl;
 
     } catch(mixd::MixdException e)
     { std::cout << e.msg() << std::endl; }
