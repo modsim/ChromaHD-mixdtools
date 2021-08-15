@@ -1,4 +1,4 @@
-INCLUDES=
+INCLUDES=-Imixdclass/
 CXX=g++
 CXXFLAGS=-g $(INCLUDES)
 
