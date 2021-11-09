@@ -16,7 +16,7 @@ inputSettings::inputSettings(int largc, char** largv)
     mxyzFile   = "mxyz";
     mienFile   = "mien";
     mrngFile   = "mrng";
-    nrec       = 1;
+    nrec       = 0;
     nrecstride = 1;
     nrecoffset = 0;
     ndf        = 1;
