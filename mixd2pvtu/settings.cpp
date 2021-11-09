@@ -68,9 +68,10 @@ void inputSettings::readSettingsFile()
     inputFile.open(fileName,ios::in);
     if (inputFile.is_open()==false)
     {
-        cout << "Unable to open input file for pe: " << mype << "! Aborting... " << endl;
-        MPI_Finalize();
-        exit(0);
+        cout << "Unable to open input file for pe: " << mype << "! Using defaults and commandline arguments... " << endl;
+        // MPI_Finalize();
+        // exit(0);
+        return;
     }
 
     while (!inputFile.eof())
@@ -235,7 +236,7 @@ void inputSettings::readCommandlineArguments()
     if (optind >= argc)
     {
         std::cout << "No settings file provided!" << std::endl;
-        exit(-1);
+        // exit(-1);
     }
 
 }
