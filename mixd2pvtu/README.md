@@ -17,6 +17,10 @@ cmake -DCMAKE_INSTALL_PREFIX=$HOME/local/VTK/9.1.0 -DVTK_USE_MPI=ON -DVTK_WRAP_P
 make -j $(nprocs) install
 ```
 
+Then, ensure that `$HOME/local/VTK/9.1.0/include` is in `$CPATH` and `$HOME/local/VTK/9.1.0/lib` is in `$LD_LIBRARY_PATH`.
+
+Also, probably good to symlink `$HOME/local/VTK/9.1.0/include/vtk-9.1` -> `$HOME/local/VTK/9.1.0/include/vtk` since our includes use `vtk/` now.
+
 Compiling MIXD2PVTU should then be simple:
 
 ```
