@@ -39,7 +39,7 @@ Config::Config(int largc, char** largv)
         std::cout << "Usage: ./mixd2pvtu <settings.in file> <override arguments>" << std::endl;
         exit(-1);
     }
-    else if ((argc == 2) && (argv[1][0] != '-'))
+    else if ((argc >= 2) && (argv[1][0] != '-'))
     {
         read(argv[1]);
     }
