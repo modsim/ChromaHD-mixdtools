@@ -7,9 +7,6 @@
 
 class Element{
     public:
-        // Element(){};
-        // ~Element(){};
-
         virtual void setConn  (int i, int value) {conn[i] = value;};
         virtual void setLConn (int i, int value) {lConn[i] = value;};
 
@@ -35,12 +32,6 @@ class Tetrahedron
         delete[] lConn;
     };
 
-    // void setConn  (int i, int value) {conn[i] = value;};
-    // void setLConn (int i, int value) {lConn[i] = value;};
-
-    // int getConn  (int index) {return conn[index];};
-    // int getLConn (int index) {return lConn[index];};
-
 };
 
 class Triangle
@@ -58,12 +49,6 @@ class Triangle
         delete[] conn;
         delete[] lConn;
     };
-
-    // void setConn  (int i, int value) {conn[i] = value;};
-    // void setLConn (int i, int value) {lConn[i] = value;};
-
-    // int getConn  (int index) {return conn[index];};
-    // int getLConn (int index) {return lConn[index];};
 
 };
 
