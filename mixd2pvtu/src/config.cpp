@@ -92,10 +92,12 @@ void Config::read(std::string filename)
             else if(dummyString == "elemtype")
             {
                 getline(iss, dummyString2, ' ');
+                getline(iss, dummyString2, ' ');
                 elemType = processElementType(dummyString2);
             }
             else if(dummyString == "data")
             {
+                dataFiles = {};
                 while (getline(iss, dummyString2, ' '))
                 {
                     if (dummyString2 != " " && (!dummyString2.empty()))

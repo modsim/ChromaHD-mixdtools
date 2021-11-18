@@ -64,7 +64,7 @@ VTKCellType processElementType(std::string typestring)
         return VTK_TRIANGLE;
     else
     {
-        std::cerr << "Invalid element type specified!" << std::endl;
+        std::cerr << "Invalid element type specified: " << typestring << std::endl;
         std::exit(-1);
     }
 

@@ -38,6 +38,4 @@ The program can be configured via a text based input file or just commandline ar
 - [ ] Implement mixdclass to handle mixd data??
 - [ ] Timing outputs for different sections of the code. Also per data write. 
 - [ ] Fix MPI int count overflows for large meshes. 
-- [ ] Dynamic handling of element types.
-- [ ] Rename tetMesh to just Mesh.
 - [ ] Write unit tests
