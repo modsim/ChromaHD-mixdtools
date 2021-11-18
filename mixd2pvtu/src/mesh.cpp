@@ -547,7 +547,7 @@ void Mesh::readDataRecord(
 
     getFileAndOffset(irec, nrecstride, nrecoffset, ndf, dataFiles, filename, offset);
     /* cout << "Reading File: " << filename << " starting at offset: " << offset <<endl; */
-    if (mype == 0) std::cout << "rec " << irec << ": reading..." << std::flush;
+    if (mype == 0) std::cout << "rec " << irec << ": reading..." << std::endl;
 
 
     MPI_File_open(MPI_COMM_WORLD, filename.c_str(), MPI_MODE_RDONLY, MPI_INFO_NULL, &fileptr);

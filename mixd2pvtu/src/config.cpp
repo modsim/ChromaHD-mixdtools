@@ -161,13 +161,13 @@ void Config::print()
         std::cout << "Number of Timesteps Stride            : " << nrecstride         << std::endl;
         std::cout << "Number of Timesteps Offset            : " << nrecoffset         << std::endl;
         std::cout << "Number of Data Files                  : " << dataFiles.size()   << std::endl;
-        std::cout << "Timesteps File                        : " << dtFile             << std::endl;
         std::cout << "Data Files                            : " << std::flush;
 
-        for(std::vector<std::string>::iterator it = dataFiles.begin(); it != dataFiles.end(); ++it)
+        for (auto it = dataFiles.begin(); it != dataFiles.end(); it++)
             std::cout << *it << " " << std::flush;
         std::cout << std::endl;
-        /* cout << "Time step size                        : " << dt		<< endl; */
+        std::cout << "Time step size                        : " << dt		<< std::endl;
+        std::cout << "Timesteps File                        : " << dtFile             << std::endl;
     }
 
     return;
