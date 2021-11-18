@@ -97,7 +97,7 @@ void Config::read(std::string filename)
             }
             else if(dummyString == "data")
             {
-                dataFiles = {};
+                dataFiles.clear();
                 while (getline(iss, dummyString2, ' '))
                 {
                     if (dummyString2 != " " && (!dummyString2.empty()))
@@ -198,6 +198,7 @@ void Config::readCommandlineArguments()
             {"mien", required_argument, 0, 'e'},
             {"outpath", required_argument, 0, 'o'},
             {"elemtype", required_argument, 0, 'E'},
+            {"data", required_argument, 0, 'd'},
             {0, 0, 0, 0}
         };
         /* getopt_long stores the option index here. */
@@ -228,6 +229,7 @@ void Config::readCommandlineArguments()
             case 'i': minfFile = optarg; break;
             case 'x': mxyzFile = optarg; break;
             case 'e': mienFile = optarg; break;
+            case 'd': dataFiles.push_back(optarg); break;
             case 'E': elemType = processElementType(optarg); break;
             case 's': spacetime = true; break;
             case '?':
