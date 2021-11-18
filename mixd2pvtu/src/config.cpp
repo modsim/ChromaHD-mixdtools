@@ -77,7 +77,7 @@ void Config::read(std::string filename)
         // Get a line and store in lineString
         getline(inputFile, lineString, '\n');
         // If the first character of the line is not a '#'
-        if (lineString.c_str()[0] != '#')
+        if ((lineString.c_str()[0] != '#') && (!lineString.empty()))
         {
             std::istringstream iss(lineString);
             iss >> dummyString;
