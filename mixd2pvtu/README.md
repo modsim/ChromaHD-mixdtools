@@ -8,11 +8,28 @@ The code is relatively crude, but functional.
 
 Prerequisites: `VTK (with MPI support), MPI`
 
+VTK can be installed with OSMESA with the following commands after downloading and unzipping the source:
+
+```
+mkdir build
+cd build
+cmake -DCMAKE_INSTALL_PREFIX=$HOME/local/VTK/9.1.0 -DVTK_USE_MPI=ON -DVTK_WRAP_PYTHON=ON -DVTK_SMP_IMPLEMENTATION_TYPE=TBB -DVTK_OPENGL_HAS_OSMESA=ON -DVTK_USE_X=OFF ..
+make -j $(nprocs) install
+```
+
+Compiling MIXD2PVTU should then be simple:
+
 ```
 mkdir build
 cd build
 cmake ../src
 make install
+```
+
+Newer versions of cmake should allow the following neat one-liner:
+
+```
+cmake -B build src && make -C build install
 ```
 
 # Usage
