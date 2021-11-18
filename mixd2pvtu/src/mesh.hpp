@@ -20,7 +20,7 @@ class Mesh {
     {
         /* delete[] node;    // Recovers memory for node level data structure. */
         delete[] lNode;   // Recovers memory for local node level data structure.
-        // delete[] elem;    // Recovers memory for element level data structure.
+        delete[] elem;    // Recovers memory for element level data structure.
         delete[] dataL;
         delete[] dataG;
         delete[] nodeLToG;
@@ -37,19 +37,21 @@ class Mesh {
     long nnl;
     long mnc;
 
+    int nsd = 3;
+
+    int nen; // from element type
     int ndf; // from config
 
-    int nsd = 3;
-    int nen;
+    double * xyz;   // coordinates
 
-    double * xyz;
+    // local and global data arrays
     double * dataL; // size nnl * ndf
     double * dataG; // size nnc * ndf
 
     //TODO: Consider making this long
     int * nodeLToG; // array for local to global connectivity conversion 
 
-    Node *node;
+    // Node *node;
     Node *lNode;
 
     //NOTE: These bits are from the config class
@@ -63,13 +65,12 @@ class Mesh {
     std::string outpath;
 
     Element *elem;
-    // std::vector<Element> elem;
 
     double* getXyz()   {return xyz;};
     double* getDataG() {return dataG;};
     double* getDataL() {return dataL;};
 
-    Node*    getNode (int  index){return &node[index];};
+    // Node*    getNode (int  index){return &node[index];};
     Node*    getLNode(int index) {return &lNode[index];};
     Element* getElem (int  index){return &elem[index];};
 

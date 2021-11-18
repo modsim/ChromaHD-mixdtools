@@ -16,6 +16,11 @@
 #include <vtk/vtkXMLPUnstructuredGridWriter.h>
 #include <vtk/vtkSmartPointer.h>
 
+/*
+* @brief: Mesh class
+* @details: Reads mesh files and data, distributes them, and writes out.
+* @param: [in] Config
+*/
 Mesh::Mesh(Config config)
 {
     ndf        = config.getNdf();
@@ -30,8 +35,6 @@ Mesh::Mesh(Config config)
     readminf(config.getMinfFile(), config.getSpacetime());
     distribute();
 
-    /* node = new tetNode[nnc]; */
-
     elemType = config.getElemType();
 
     if (elemType == VTK_TETRA)
@@ -39,7 +42,7 @@ Mesh::Mesh(Config config)
         nen = 4;
         elem = new Tetrahedron[nec];
     }
-    if (elemType == VTK_TRIANGLE)
+    else if (elemType == VTK_TRIANGLE)
     {
         nen = 3;
         elem = new Triangle[nec];
@@ -47,12 +50,7 @@ Mesh::Mesh(Config config)
 
     xyz = new double [nnc*nsd];
 
-    std::cout << "Mesh VTKElemType: " << elemType << std::endl; 
-    std::cout << "Mesh nsd: " << nsd << std::endl; 
-    std::cout << "Mesh nen: " << nen << std::endl; 
-
     MPI_Barrier(MPI_COMM_WORLD);
-
 
     readmxyz(config.getMxyzFile());
     readmien(config.getMienFile());
@@ -69,6 +67,10 @@ Mesh::Mesh(Config config)
 
 }
 
+/*
+* @brief: read data per timestep and write to vtk
+* @details: Read -> Localize -> VTK
+*/
 void Mesh::write()
 {
     if (nrec == 0) vtkVisualization(-1, title, outpath, elemType);
@@ -81,6 +83,11 @@ void Mesh::write()
     }
 }
 
+/*
+* @readminf: Read the MIXD minf file
+* @param: [in] string: filename
+* @param: [in] bool: spacetime
+*/
 void Mesh::readminf(std::string filename, bool spacetime)
 {
     std::ifstream file;
@@ -129,12 +136,8 @@ void Mesh::readminf(std::string filename, bool spacetime)
         }
     }
 
+    // We are only interested in the semi-discrete part of the mesh
     if (spacetime == 1) nn = nn/2;
-
-    // if (spacetime == 1) 
-    //     nnspace = nn/2;
-    // else
-    //     nnspace = nn;
 
     if (mype==0)
     {
@@ -194,23 +197,15 @@ void Mesh::readmxyz(std::string filename)
     MPI_Type_contiguous(nnc*nsd, MPI_DOUBLE, &mxyzftype);
     MPI_Type_commit(&mxyzftype);
 
-
-    if (size < nn * nsd * sizeof(double))
+    if ((size != nn * nsd * sizeof(double)) && (size != 2 * nn * nsd * sizeof(double))) 
     {
         MPI_File_close(&fileptr);
         MPI_Barrier(MPI_COMM_WORLD);
 
-        if(mype == 0) std::cout << "ERROR: MXYZ file is smaller than expected."  << std::endl;
+        if(mype == 0) std::cout << "ERROR: MXYZ file size mismatch."  << std::endl;
         MPI_Finalize();
         exit(-1);
     }
-
-    // std::cout << offset << std::endl;
-    // std::cout << MPI_DOUBLE << std::endl;
-    // std::cout << mxyzftype << std::endl;
-    // std::cout << fileptr << std::endl;
-
-
 
     MPI_File_set_view(fileptr, offset, MPI_DOUBLE, mxyzftype, "native", MPI_INFO_NULL);
     readStream = new char [nsd*nnc*sizeof(double)];
@@ -252,12 +247,10 @@ void Mesh::readmien(std::string filename)
     MPI_Comm_rank(MPI_COMM_WORLD, &mype);
     MPI_Comm_size(MPI_COMM_WORLD, &npes);
 
-    /// For parallel file input
-
     MPI_Status status;
     MPI_Offset offset;                      // offset from the beginning of file for parallel file read
     MPI_Offset size;
-    MPI_Datatype mienftype;       // mpi datatype used in parallel file read
+    MPI_Datatype mienftype;                 // mpi datatype used in parallel file read
     MPI_File fileptr;                       // file pointer for parallel file read
 
     offset = mype*nen*mec*sizeof(int);
@@ -272,16 +265,15 @@ void Mesh::readmien(std::string filename)
     std::cout << "ne: " << ne << std::endl;
     std::cout << "nen: " << nen << std::endl;
 
-    if (size < ne * nen * sizeof(int))
+    if (size != ne * nen * sizeof(int))
     {
         MPI_File_close(&fileptr);
         MPI_Barrier(MPI_COMM_WORLD);
 
-        if(mype == 0) std::cout << "ERROR: MIEN file is smaller than expected."  << std::endl;
+        if(mype == 0) std::cout << "ERROR: MIEN file size mismatch."  << std::endl;
         MPI_Finalize();
         exit(-1);
     }
-
 
     MPI_File_set_view(fileptr, offset, MPI_INT, mienftype, "native", MPI_INFO_NULL);
     readStream = new char [nen*nec*sizeof(int)];
