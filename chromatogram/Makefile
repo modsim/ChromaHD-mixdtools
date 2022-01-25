@@ -19,7 +19,7 @@ clean:
 	$(RM) $(EXE)
 
 install: $(EXE)
-	cp $< ~/binn
+	cp $< ~/local/bin
 
 .PHONY: all clean
 
