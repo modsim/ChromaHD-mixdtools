@@ -35,7 +35,7 @@ template <> int node<8,6,4>(int f, int fn)
 
 
 
-double getTime(const std::string & timefile, int tstep) throw (mixd::MixdException)
+double getTime(const std::string & timefile, int tstep)
 {
     if(timefile != "")
     {
@@ -72,8 +72,8 @@ void printUsage(char *binaryName)
 
 
 void integrate
-    (const mixd::MixdFile<int> & mien, const mixd::MixdFile<double> & mxyz, const mixd::MixdFile<double> & data, double * intvals)
-    throw (mixd::MixdException);
+    (const mixd::MixdFile<int> & mien, const mixd::MixdFile<double> & mxyz, const mixd::MixdFile<double> & data, double * intvals);
+    
 
 
 int main(int argc, char **argv)
@@ -330,7 +330,6 @@ int main(int argc, char **argv)
     // CAUTION: this function works ONLY for tetrahedra meshes!!!!
     void integrate
     (const mixd::MixdFile<int> & mien, const mixd::MixdFile<double> & mxyz, const mixd::MixdFile<double> & data, double * intvals)
-    throw (mixd::MixdException)
     {
         const int nen = mien.cols();  // always 4
         const int nsd = 2; //mxyz.cols();  // always 3
