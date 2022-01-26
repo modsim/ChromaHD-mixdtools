@@ -282,11 +282,14 @@ int main(int argc, char **argv)
     {
         double time = getTime(timefile, step);
         
-        cfile << setw(24) << scientific << setprecision(10) << time;
+        cfile << scientific << setprecision(10) << time ;
         
-        // NOTE: We write out mass-flowrate / average-volume-flowrate to get back the concentration at the exit
-        for(int idf=0; idf<ndf; idf++)
-            cfile << setw(24) << scientific << setprecision(10) << chromatogram[step*ndf+idf] / intflow[2];
+        // // NOTE: We write out mass-flowrate / average-volume-flowrate to get back the concentration at the exit
+        // for(int idf=0; idf<ndf; idf++)
+        //     cfile << ',' << chromatogram[step*ndf+idf] / intflow[2];
+
+        // only the first dof is sufficient
+        cfile << ',' << chromatogram[step*ndf+0] / intflow[2];
         
         cfile << endl;
     }
