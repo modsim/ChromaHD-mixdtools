@@ -274,7 +274,7 @@ int main(int argc, char **argv)
     // print to files...
     cout << "Generating output text file... " << flush;
     
-    ofstream cfile("chromnew", ifstream::out);
+    ofstream cfile("chromatogram_rng" + str(chromrng) + ".csv", ifstream::out);
     
     if(!cfile.is_open())
         throw MixdException("could not open file");
