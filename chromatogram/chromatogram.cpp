@@ -1,8 +1,9 @@
-
 #include "mixd.hpp"
 #include "dunavant.hpp"
 #include <cmath>
 
+// TODO: make integrate() operate on only a given dof. We don't need to integrate every dof
+// TODO: Allow specifying mesh directory instead of assuming current dir
 
 static const int facemap_tri[3][2] = { {0,1}, {1,2}, {2,0} };
 static const int facemap_tet[4][3] = { {0,1,2}, {0,3,1}, {1,3,2}, {0,2,3} };
