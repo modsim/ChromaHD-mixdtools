@@ -217,6 +217,16 @@ int main(int argc, char **argv)
     
     
     double * chromatogram = new double[ndf*nsteps];
+
+    double * intflow = new double[4];
+    integrate(mien_surf, mxyz_surf, flow_surf, intflow);
+
+    cout << "\nFlowrates: ";
+    for (int i=0; i<4; i++)
+    {
+        cout << intflow[i] << "\t";
+    }
+    cout << endl << endl;;
     
     
 //     // compute max breakthrough flux value
@@ -253,6 +263,7 @@ int main(int argc, char **argv)
             }
         }
         
+        // NOTE: chromatogram here stores integral(c * u * dA) = mass flow rate
         integrate(mien_surf, mxyz_surf, data_surf, &(chromatogram[step*ndf]));
     }
     
@@ -273,8 +284,9 @@ int main(int argc, char **argv)
         
         cfile << setw(24) << scientific << setprecision(10) << time;
         
+        // NOTE: We write out mass-flowrate / average-volume-flowrate to get back the concentration at the exit
         for(int idf=0; idf<ndf; idf++)
-            cfile << setw(24) << scientific << setprecision(10) << chromatogram[step*ndf+idf];
+            cfile << setw(24) << scientific << setprecision(10) << chromatogram[step*ndf+idf] / intflow[2];
         
         cfile << endl;
     }
