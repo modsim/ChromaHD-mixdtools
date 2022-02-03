@@ -78,12 +78,11 @@ void getArgs(int argc, char * argv[], int& ndf, int& nts, int& rng, int& spaceti
 {
     if (argc < 2)
     {
-        std::cout << "stitchperiodic: Stitch periodically linked simulations together." <<std::endl;
+        std::cout << "extractRNG: Extract RNG mesh and data from an existing MIXD mesh + data." <<std::endl;
         std::cout << "Run this program in the solution directory." << std::endl;
-        std::cout << "Usage: ./stitchperiodic <data_file> -n/--ndf <ndf> -t/--nts <nts> -r/--rng <rng> -s/--spacetime-upper" << std::endl;
-        std::cout << "Generates rng.xyz and rng.data files that must be copied to the  new solution directory." << std::endl;
+        std::cout << "Usage: ./extractRNG <data_file> -n/--ndf <ndf> -t/--nts <nts> -r/--rng <rng> -s/--spacetime-upper" << std::endl;
         std::cout << "Writes data from lower slab if spacetime-upper (-s) is not specified." << std::endl;
-        std::cout << "Ensure that xns.in is updated accordingly." << std::endl;
+        std::cout << "Copied from stitchperiodic" << std::endl;
         exit(-1);
     }
 
@@ -244,12 +243,8 @@ int main(int argc, char * argv[])
 
     mixd::MixdFile<int> rngmien("rng.mien", tris.size(), 3, false);
     mixd::MixdFile<double> rngmxyz("rng.mxyz", vNodes.size(), 3, false);
-    mixd::MixdFile<double> data(argv[optind], nn, ndf,false);
 
-    // remove previous rng.data file
-    // Used because I append data instead of writing for now
-    std::remove("rng.data");
-    mixd::MixdFile<double> rngdata("rng.data", nodes_rng.size(), ndf, false);
+
 
     // Prepare mien file
     for (int i=0; i<tris.size(); i++)
@@ -264,6 +259,26 @@ int main(int argc, char * argv[])
             rngmxyz(i,j) = vNodes.at(i)._coords[j];
 
     std::cout << "rngmxyz ready..." << std::endl;
+
+    rngmien.write();
+    rngmxyz.write();
+
+    int ne_rng = tris.size();
+    int nn_rng = vNodes.size();
+
+    std::cout << "writing minf... ";
+    std::ofstream of;
+    of.open("rng.minf");
+    of << "ne" << std::setw(12) << ne_rng << std::endl;
+    of << "nn" << std::setw(12) << nn_rng << std::endl;
+    of.close();
+
+    mixd::MixdFile<double> data(argv[optind], nn, ndf,false);
+
+    // remove previous rng.data file
+    // Used because I append data instead of writing for now
+    std::remove("rng.data");
+    mixd::MixdFile<double> rngdata("rng.data", nodes_rng.size(), ndf, false);
 
     long offset=0;
     if (spacetimeupper == 1)
@@ -291,18 +306,6 @@ int main(int argc, char * argv[])
     }
     std::cout << "rngdata ready..." << std::endl;
 
-    rngmien.write();
-    rngmxyz.write();
-
-    int ne_rng = tris.size();
-    int nn_rng = vNodes.size();
-
-    std::cout << "writing minf... ";
-    std::ofstream of;
-    of.open("rng.minf");
-    of << "ne" << std::setw(12) << ne_rng << std::endl;
-    of << "nn" << std::setw(12) << nn_rng << std::endl;
-    of.close();
 
     std::cout << "done!" << std::endl;
 }
