@@ -275,8 +275,12 @@ int main(int argc, char **argv)
     cout << "Generating output text file... " << flush;
     
     ofstream cfile("chromatogram_rng" + str(chromrng) + ".csv", ifstream::out);
+    ofstream intfile("integrated_rng" + str(chromrng) + ".csv", ifstream::out);
     
     if(!cfile.is_open())
+        throw MixdException("could not open file");
+
+    if(!intfile.is_open())
         throw MixdException("could not open file");
     
     for(int step=0; step<nsteps; step++)
@@ -284,6 +288,7 @@ int main(int argc, char **argv)
         double time = getTime(timefile, step);
         
         cfile << scientific << setprecision(10) << time ;
+        intfile << scientific << setprecision(10) << time ;
         
         // // NOTE: We write out mass-flowrate / average-volume-flowrate to get back the concentration at the exit
         // for(int idf=0; idf<ndf; idf++)
@@ -291,11 +296,14 @@ int main(int argc, char **argv)
 
         // only the first dof is sufficient
         cfile << ',' << chromatogram[step*ndf+0] / intflow[2];
+        intfile << ',' << chromatogram[step*ndf+0];
         
         cfile << endl;
+        intfile << endl;
     }
     
     cfile.close();
+    intfile.close();
     
     cout << "done!" << endl;
     
