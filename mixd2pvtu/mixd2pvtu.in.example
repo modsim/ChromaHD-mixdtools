@@ -2,6 +2,7 @@
 title test-case 
 outpath output
 
+elemtype tet    # or tri
 # Mesh files
 minf minf 
 mxyz mxyz
