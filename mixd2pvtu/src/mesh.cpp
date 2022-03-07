@@ -300,7 +300,7 @@ void Mesh::readmien(std::string filename)
 }
 
 
-void Mesh::getTimesteps(std::string dtFile, int dt, int nrec)
+void Mesh::getTimesteps(std::string dtFile, double dt, int nrec)
 {
     int mype;
     MPI_Comm_rank(MPI_COMM_WORLD, &mype);
@@ -310,6 +310,8 @@ void Mesh::getTimesteps(std::string dtFile, int dt, int nrec)
         std::ifstream dtFileD;
         std::string lineString;
         char * pEnd;
+
+        std::cout << "Using " << dtFile << "for timesteps" << std::endl;
 
         dtFileD.open(dtFile,std::ios::in);
         if (dtFileD.is_open()==false)
@@ -330,6 +332,7 @@ void Mesh::getTimesteps(std::string dtFile, int dt, int nrec)
     }
     else
     {
+        std::cout << "Assuming equal timesteps of size: " << dt << std::endl;
         for (auto it = 0; it != nrec; it++)
             timesteps.push_back(it * dt);
     }

@@ -81,7 +81,7 @@ class Mesh {
     void readminf(std::string filename, bool spacetime);
     void readmxyz(std::string filename);
     void readmien(std::string filename);
-    void getTimesteps(std::string dtFile, int dt, int nrec);
+    void getTimesteps(std::string dtFile, double dt, int nrec);
 
     void formLocalNodeList();
     void localizeNodeCoordinates();
