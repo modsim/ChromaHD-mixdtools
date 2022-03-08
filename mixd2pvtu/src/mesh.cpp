@@ -628,6 +628,20 @@ void Mesh::getFileAndOffset(
     {
         int index = it - dataFiles.begin();
         size = std::experimental::filesystem::file_size(*it);
+
+        // // Uncomment the following and delete the top line if the libc wasn't
+        // // compiled with experimental features. i.e. if std::experimental or
+        // // std::filesystem isn't available for the above line
+        // // Also include <sys/stat.h>
+        // struct stat sb{};
+        // if (!stat((*it).c_str(), &sb)) {
+        //     cout << sb.st_size << endl;
+        // } else {
+        //     perror("stat");
+        // }
+        // size = sb.st_size;
+
+
         cumulativeFileSize += size;
         dataFileSizes.push_back(size);
 
