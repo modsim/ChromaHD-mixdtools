@@ -17,7 +17,7 @@ cmake -DCMAKE_INSTALL_PREFIX=$HOME/local/VTK/9.1.0 -DVTK_USE_MPI=ON -DVTK_WRAP_P
 make -j $(nprocs) install
 ```
 
-Then, ensure that `$HOME/local/VTK/9.1.0/include` is in `$CPATH` and `$HOME/local/VTK/9.1.0/lib` is in `$LD_LIBRARY_PATH`.
+Then, ensure that `$HOME/local/VTK/9.1.0/include` is in `$CPATH` and `$HOME/local/VTK/9.1.0/lib` (or `lib64`) is in `$LD_LIBRARY_PATH`.
 
 Also, probably good to symlink `$HOME/local/VTK/9.1.0/include/vtk-9.1` -> `$HOME/local/VTK/9.1.0/include/vtk` since our includes use `vtk/` now.
 
@@ -47,6 +47,7 @@ The program can be configured via a text based input file or just commandline ar
 - Example settings file is provided with source code
 - [PROB] For large meshes on single core, nnc*nsd etc is larger than INT_MAX, and overflows the int count parameters in MPI calls
 - Works with VTK 9.1
+- See [this](https://vtk.org/Wiki/VTK/Tutorials/CMakeListsFile) in case cmake can't find VTK.
 
 # Todos
 - [ ] Error handling & safety
