@@ -192,13 +192,14 @@ void Config::readCommandlineArguments()
             {"spacetime",  no_argument, 0, 's'},
             {"ndf",  required_argument, 0, 'n'},
             {"nrec",  required_argument, 0, 'r'},
-            {"title",  required_argument, 0, 't'},
+            {"title",  required_argument, 0, 'T'},
             {"minf", required_argument, 0, 'i'},
             {"mxyz", required_argument, 0, 'x'},
             {"mien", required_argument, 0, 'e'},
             {"outpath", required_argument, 0, 'o'},
             {"elemtype", required_argument, 0, 'E'},
             {"data", required_argument, 0, 'd'},
+            {"timesteps",  required_argument, 0, 't'},
             {0, 0, 0, 0}
         };
         /* getopt_long stores the option index here. */
@@ -224,7 +225,8 @@ void Config::readCommandlineArguments()
 
             case 'n': ndf = std::atoi(optarg); break;
             case 'r': nrec = std::atoi(optarg); break;
-            case 't': title = optarg; break;
+            case 't': dt = std::atoi(optarg); break;
+            case 'T': title = optarg; break;
             case 'o': outpath = optarg; break;
             case 'i': minfFile = optarg; break;
             case 'x': mxyzFile = optarg; break;
