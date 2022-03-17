@@ -15,8 +15,6 @@ find_package(VTK REQUIRED)
 # set(LDFLAGS "-Wl,--copy-dt-needed-entries")
 # set(VTK_DIR "/usr/include/vtk-7.1")
 
-set(CMAKE_INSTALL_PREFIX "~/local")
-
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 link_libraries(stdc++fs)
