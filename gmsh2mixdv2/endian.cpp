@@ -1,4 +1,5 @@
 #include "endian.h"
+#include <cstdlib>
 
 #include <memory>
 #include <string.h>
