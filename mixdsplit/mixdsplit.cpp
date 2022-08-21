@@ -7,9 +7,10 @@
 void printUsage(char *binaryName)
 {
     std::cout << binaryName << " [ -m {spacetime mesh directory} ] [-d {data.all}] [-o {splitdata.all}]" << std::endl;
-    std::cout << "MIXD tool to separate a chromatography mesh+data into the interstitial and particle domains" << std::endl;
+    std::cout << "MIXD tool to separate a chromatography data into the interstitial and particle domains" << std::endl;
     std::cout << "Run in directory with spacetime data.all. Expects to find ../mesh/{minf,nmap}" << std::endl;
     std::cout << "Automatically uses the top timeslab data. New data is semidiscrete." << std::endl;
+    std::cout << "DOES NOTE GENERATE A MIXD MESH! ONLY CREATES DATA FOR INTERSTITIAL VOLUME!" << std::endl;
 }
 
 
@@ -108,9 +109,10 @@ int main(int argc, char **argv)
         std::remove(splitdatafile.c_str());
         mixd::MixdFile<double> newdata(splitdatafile, new_nn, 1, false);
 
-        // TODO: calculate nts from filesize and nn
+        //spacetime upper offset
         int stu_offset = 0;
 
+        //calculate nts from filesize and nn
         std::uintmax_t filesize = std::filesystem::file_size(datafile);
         int nts = filesize / 8 / nn / ndf;
 
