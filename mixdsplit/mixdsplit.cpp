@@ -7,7 +7,7 @@
 void printUsage(char *binaryName)
 {
     std::cout << binaryName << " [ -m {spacetime mesh directory} ] [-d {data.all}] [-o {splitdata.all}]" << std::endl;
-    std::cout << "MIXD tool to separate a chromatography data into the interstitial (bulk) and particle (bed) domains" << std::endl;
+    std::cout << "MIXD tool to separate a chromatography data into the interstitial and particle domains" << std::endl;
     std::cout << "Run in directory with spacetime data.all. Expects to find ../mesh/{minf,nmap}" << std::endl;
     std::cout << "Automatically uses the top timeslab data. New data is semidiscrete." << std::endl;
     std::cout << "DOES NOTE GENERATE A MIXD MESH! ONLY CREATES DATA FOR INTERSTITIAL VOLUME!" << std::endl;
@@ -43,7 +43,7 @@ int main(int argc, char **argv)
 
     string meshdir  = "../mesh";
     string datafile = "data.all";
-    string bulk_data_file = "bulk_c.all";
+    string splitdatafile = "splitdata.all";
 
     while ((c = getopt(argc, argv, "m:d:o:")) != -1)
     {
@@ -54,6 +54,9 @@ int main(int argc, char **argv)
                 break;
             case 'd':
                 datafile = optarg;
+                break;
+            case 'o':
+                splitdatafile = optarg;
                 break;
             default:
                 printUsage(argv[0]);
@@ -74,6 +77,7 @@ int main(int argc, char **argv)
     std::cout << "minffile: " << minffile << std::endl;
     std::cout << "nmapfile: " << nmapfile << std::endl;
     std::cout << "datafile: " << datafile << std::endl;
+    std::cout << "splitdatafile: " << splitdatafile << std::endl;
 
 
     try{
@@ -98,12 +102,15 @@ int main(int argc, char **argv)
         MixdFile<int> nmap(nmapfile, nn/2, 1, false);
         nmap.read();
 
-        int bulk_nn = nmap.max();
-        std::cout << "nn split: " << bulk_nn << std::endl;
+        int new_nn = nmap.max();
+        std::cout << "nn split: " << new_nn << std::endl;
 
         mixd::MixdFile<double> data(datafile, nn, ndf, false);
-        std::remove(bulk_data_file.c_str());
-        mixd::MixdFile<double> bulk_data(bulk_data_file, bulk_nn, 1, false);
+        std::remove(splitdatafile.c_str());
+        mixd::MixdFile<double> interstitial_data(splitdatafile, new_nn, 1, false);
+
+        //spacetime upper offset
+        int stu_offset = 0;
 
         //calculate nts from filesize and nn
         std::uintmax_t filesize = std::filesystem::file_size(datafile);
@@ -111,10 +118,9 @@ int main(int argc, char **argv)
 
         std::cout << "Found " << nts << " timesteps!" << std::endl;
 
-        //spacetime upper offset
-        int stu_offset = 0;
         if (spacetime && spacetimeupper)
             stu_offset = nnspace;
+
 
         SimpleProgress sp(0, nts, 20);
         for(int its=0; its<nts; its++)
@@ -124,10 +130,10 @@ int main(int argc, char **argv)
             {
                 if (nmap(i) > 0)
                 {
-                    bulk_data(nmap(i)-1, 0) = data(i + stu_offset, idf);
+                    interstitial_data(nmap(i)-1, 0) = data(i + stu_offset, idf);
                 }
             }
-            bulk_data.append();
+            interstitial_data.append();
             sp.printIfHitNext(its);
         }
 
