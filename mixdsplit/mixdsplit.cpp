@@ -107,7 +107,7 @@ int main(int argc, char **argv)
 
         mixd::MixdFile<double> data(datafile, nn, ndf, false);
         std::remove(splitdatafile.c_str());
-        mixd::MixdFile<double> newdata(splitdatafile, new_nn, 1, false);
+        mixd::MixdFile<double> interstitial_data(splitdatafile, new_nn, 1, false);
 
         //spacetime upper offset
         int stu_offset = 0;
@@ -130,10 +130,10 @@ int main(int argc, char **argv)
             {
                 if (nmap(i) > 0)
                 {
-                    newdata(nmap(i)-1, 0) = data(i + stu_offset, idf);
+                    interstitial_data(nmap(i)-1, 0) = data(i + stu_offset, idf);
                 }
             }
-            newdata.append();
+            interstitial_data.append();
             sp.printIfHitNext(its);
         }
 
