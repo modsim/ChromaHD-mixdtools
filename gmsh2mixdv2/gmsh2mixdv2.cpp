@@ -217,6 +217,7 @@ int boundaryConditions(Mesh &mesh)
         std::cout << "now doubling nodes..." << std::flush;
 
         // iterate over the tetras to change their connectivity to doubled boundary nodes
+        #pragma omp parallel for shared(mesh)
         for (std::vector<Tetrahedron *>::iterator it_tet=mesh.tets.begin(); it_tet!=mesh.tets.end(); ++it_tet)
         {
             // should this tetra be connected to doubled nodes?
