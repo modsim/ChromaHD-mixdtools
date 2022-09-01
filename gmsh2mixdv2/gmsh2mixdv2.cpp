@@ -171,9 +171,12 @@ int boundaryConditions(Mesh &mesh)
                 //if tri is found, set boundary ID and adjacent tets
                 if(it_tri != mesh.trimap.end())
                 {
+                    // std::cout << "Found match bID: " << it_tri->second->bID << std::endl;
                     (it_tri)->second->setAdjacentTetra(it_tet - mesh.tets.begin() + 1);
                     /* (*it_tet)->setBoundaryID(it_tri->second); */
+                    // TODO: This is probably unnecessary since we explicitly find the matched nodes already. Simplify the function
                     (*it_tet)->setBoundaryID(*it_tri);
+
                 }
             }
 
@@ -194,6 +197,7 @@ int boundaryConditions(Mesh &mesh)
     {
 
         // set the material domain with the largest number as the one which uses the doubled nodes on the boundary
+        // TODO: mesh.dblNodeDomains.max()
         int domainOfDoubledNodes = -1;
         for(std::set<int>::iterator it=mesh.dblNodeDomains.begin(); it!=mesh.dblNodeDomains.end(); ++it)
         {

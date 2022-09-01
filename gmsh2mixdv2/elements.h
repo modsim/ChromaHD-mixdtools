@@ -71,6 +71,8 @@ Triangle::Triangle(std::string line)
 
     iss >> bID;
 
+    // std::cout << "Found bID: " << bID << std::endl;
+
     int dummy;
     for (int i = 1; i < ntags; i++)
         iss >> dummy;
@@ -188,6 +190,7 @@ inline void Tetrahedron::setBoundaryID(std::pair<std::vector<int>,Triangle*> tri
         if (faces[f] == tripair.first)
         {
             bID[f] = tripair.second->bID;
+            // std::cout << "Found Tet Face:" << bID[f] << std::endl;
             tris[f] = tripair.second;
         }
     }
