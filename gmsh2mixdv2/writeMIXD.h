@@ -51,8 +51,8 @@ void writeMINF(Mesh &mesh)
     std::ofstream of;
     of.open("minf");
 
-    int ne = mesh.tets.size();
-    int nn = mesh.nodes.size() + mesh.dblBoundaryNodes.size();
+    size_t ne = mesh.tets.size();
+    size_t nn = mesh.nodes.size() + mesh.dblBoundaryNodes.size();
 
     of << "ne" << std::setw(12) << ne << std::endl;
 
@@ -78,14 +78,14 @@ void writeMIEN(Mesh &mesh)
 
     for (std::vector<Tetrahedron*>::iterator it_tet=mesh.tets.begin(); it_tet!=mesh.tets.end(); ++it_tet)
     {
-        int nen = (*it_tet)->nen;
+        size_t nen = (*it_tet)->nen;
 
-        for (int i=0; i<nen; i++)
+        for (size_t i=0; i<nen; i++)
         {
             /* int tmp = boost::endian::native_to_big((*it_tet)->nodes[i]); */
             /* mien.write(reinterpret_cast<char*>(&tmp), sizeof(tmp)); */
 
-            endianHandler((*it_tet)->nodes[i], buf);
+            endianHandler((int)(*it_tet)->nodes[i], buf);
             mien.write(buf, 4);
 
         }
@@ -154,7 +154,7 @@ void writeMXYZ(Mesh &mesh)
 
 
 
-    for(std::set<int>::iterator it=mesh.dblBoundaryNodes.begin(); it!=mesh.dblBoundaryNodes.end(); ++it)
+    for(std::set<size_t>::iterator it=mesh.dblBoundaryNodes.begin(); it!=mesh.dblBoundaryNodes.end(); ++it)
     {
         //TODO: check how to deal with doubled nodes.
         memcpy(nx_buf, &(mesh.nodes[(*it)-1]->x), 8);
@@ -187,12 +187,12 @@ void writeMTBL(Mesh &mesh)
 
     //TODO:if(entity_dbl != -1)
     //int nloops = (generate_st)? 2 : 1;
-    int loop = 0;
+    size_t loop = 0;
 
-    int partner_node = 0;
-    int n_nodes = mesh.nodes.size();
+    size_t partner_node = 0;
+    size_t n_nodes = mesh.nodes.size();
 
-    for(int n=0; n<n_nodes; n++)
+    for(size_t n=0; n<n_nodes; n++)
     {
 
         if(mesh.dblBoundaryNodes.count(n+1))
@@ -207,18 +207,18 @@ void writeMTBL(Mesh &mesh)
         /* int tmp = boost::endian::native_to_big(partner_node); */
         /* mtbl.write(reinterpret_cast<char*>(&tmp), sizeof(tmp)); */
 
-        endianHandler(partner_node, buf);
+        endianHandler((int)partner_node, buf);
         mtbl.write(buf, 4);
 
     }
 
-    for(std::set<int>::iterator it=mesh.dblBoundaryNodes.begin(); it!=mesh.dblBoundaryNodes.end(); ++it)
+    for(std::set<size_t>::iterator it=mesh.dblBoundaryNodes.begin(); it!=mesh.dblBoundaryNodes.end(); ++it)
     {
         partner_node = *it + loop*(n_nodes + mesh.dblBoundaryNodes.size());
         /* int tmp = boost::endian::native_to_big(partner_node); */
         /* mtbl.write(reinterpret_cast<char*>(&tmp), sizeof(tmp)); */
 
-        endianHandler(partner_node, buf);
+        endianHandler((int)partner_node, buf);
         mtbl.write(buf, 4);
 
     }
@@ -241,7 +241,7 @@ void writeMTBLDUAL(Mesh &mesh)
         /* int nbtet[4]; */
         /* char *ef_buf = (char*) malloc(4*4);  // buffer for element face lists --> 4 ints of 4 bytes each */
         int nbtet;
-        for(int iface=0; iface<4; iface++)
+        for(size_t iface=0; iface<4; iface++)
         {
             if((*it_tet)->tris[iface] != NULL)
             {
@@ -274,13 +274,13 @@ void writeMRNG(Mesh &mesh)
 
     for (std::vector<Tetrahedron *>::iterator it_tet=mesh.tets.begin(); it_tet!=mesh.tets.end(); ++it_tet)
     {
-        for (int i=0; i<4 ; i++)
+        for (size_t i=0; i<4 ; i++)
         {
-            int bID = (*it_tet)->bID[i];
+            size_t bID = (*it_tet)->bID[i];
             /* int tmp = boost::endian::native_to_big(bID); */
             /* mrng.write(reinterpret_cast<char*>(&tmp), sizeof(tmp)); */
 
-            endianHandler(bID, buf);
+            endianHandler((int)bID, buf);
             mrng.write(buf, 4);
         }
     }

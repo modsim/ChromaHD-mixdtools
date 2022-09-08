@@ -33,9 +33,10 @@ int readfile(std::string filename, Mesh &mesh)
     std::cout << "Reading Physical Groups... " << std::flush;
     std::getline(infile, section);
     std::getline(infile, section_size);
-    int num = std::atoi(section_size.c_str());
+    char *end; 
+    size_t num = (size_t) std::strtoull(section_size.c_str(), &end, 10);
     int matid = 0;
-    for (int i=0; i<num; i++)
+    for (size_t i=0; i<num; i++)
     {
         int dim, tag;
         std::string name;
@@ -57,9 +58,9 @@ int readfile(std::string filename, Mesh &mesh)
     std::cout << "Reading Nodes... " << std::flush;
     std::getline(infile, section);
     std::getline(infile, section_size);
-    num = std::atoi(section_size.c_str());
+    num = (size_t) std::strtoull(section_size.c_str(), &end, 10);
 
-    for (int i=0; i<num; i++)
+    for (size_t i=0; i<num; i++)
     {
         std::getline(infile,line);
         /* std::cout << line << std::endl; */
@@ -73,14 +74,14 @@ int readfile(std::string filename, Mesh &mesh)
     std::cout << "Reading Elements... " << std::flush;
     std::getline(infile, section);
     std::getline(infile, section_size);
-    num = std::atoi(section_size.c_str());
+    num = (size_t) std::strtoull(section_size.c_str(), &end, 10);
 
-    for (int i=0; i<num; i++)
+    for (size_t i=0; i<num; i++)
     {
         std::getline(infile,line);
         /* std::cout << line << std::endl; */
 
-        int eid, etype, ntags;
+        size_t eid, etype, ntags;
         std::istringstream iss(line);
         iss >> eid >> etype >> ntags;
 
@@ -115,9 +116,9 @@ int boundaryConditions(Mesh &mesh)
 {
 
     //Check all triangles for boundary nodes and interface(doubled) nodes
-    for(std::map<std::vector<int>, Triangle *>::iterator it_tri=mesh.trimap.begin(); it_tri!=mesh.trimap.end(); ++it_tri)
+    for(std::map<std::vector<size_t>, Triangle *>::iterator it_tri=mesh.trimap.begin(); it_tri!=mesh.trimap.end(); ++it_tri)
     {
-        for(int i=0; i<it_tri->second->nen; i++)
+        for(size_t i=0; i<it_tri->second->nen; i++)
         {
             mesh.boundaryNodes.insert((it_tri)->second->nodes[i]);
             if ((it_tri)->second->bID == mesh.entity_dbl)
@@ -134,8 +135,8 @@ int boundaryConditions(Mesh &mesh)
     #pragma omp parallel for shared(mesh)
     for(std::vector<Tetrahedron *>::iterator it_tet=mesh.tets.begin(); it_tet!=mesh.tets.end(); ++it_tet)
     {
-        int n_bound_nodes = 0;
-        for(int i = 0; i< (*it_tet)->nen; i++)
+        size_t n_bound_nodes = 0;
+        for(size_t i = 0; i< (*it_tet)->nen; i++)
         {
             n_bound_nodes += mesh.boundaryNodes.count((*it_tet)->nodes[i]);
             if(mesh.dblBoundaryNodes.count((*it_tet)->nodes[i]))
@@ -151,14 +152,14 @@ int boundaryConditions(Mesh &mesh)
         {
             /* std::cout << "n_bound_nodes = " << n_bound_nodes << std::endl; */
             //uses only vertex nodes for faces
-            std::vector<std::vector<int>> faces;
+            std::vector<std::vector<size_t>> faces;
             faces.push_back({(*it_tet)->nodes[0], (*it_tet)->nodes[1], (*it_tet)->nodes[2]});
             faces.push_back({(*it_tet)->nodes[0], (*it_tet)->nodes[1], (*it_tet)->nodes[3]});
             faces.push_back({(*it_tet)->nodes[0], (*it_tet)->nodes[2], (*it_tet)->nodes[3]});
             faces.push_back({(*it_tet)->nodes[1], (*it_tet)->nodes[2], (*it_tet)->nodes[3]});
 
 
-            for(int f=0; f<4; f++)
+            for(size_t f=0; f<4; f++)
             {
                 //sort nodes of the faces and find matching tris.
                 //uses only vertex nodes
@@ -166,7 +167,7 @@ int boundaryConditions(Mesh &mesh)
 
                 /* auto it_tri = std::find_if(mesh.tris.begin(), mesh.tris.end(), [&faces,&f](Triangle * t){ return t->sortedNodes==faces[f]; }); */
 
-                std::map<std::vector<int>,Triangle*>::iterator it_tri = mesh.trimap.find(faces[f]);
+                std::map<std::vector<size_t>,Triangle*>::iterator it_tri = mesh.trimap.find(faces[f]);
 
                 //if tri is found, set boundary ID and adjacent tets
                 if(it_tri != mesh.trimap.end())
@@ -199,18 +200,18 @@ int boundaryConditions(Mesh &mesh)
         // set the material domain with the largest number as the one which uses the doubled nodes on the boundary
         // TODO: mesh.dblNodeDomains.max()
         int domainOfDoubledNodes = -1;
-        for(std::set<int>::iterator it=mesh.dblNodeDomains.begin(); it!=mesh.dblNodeDomains.end(); ++it)
+        for(std::set<size_t>::iterator it=mesh.dblNodeDomains.begin(); it!=mesh.dblNodeDomains.end(); ++it)
         {
             if(*it > domainOfDoubledNodes)
                 domainOfDoubledNodes = *it;
         }
 
-        int n_nodes = mesh.nodes.size();
-        int nid = n_nodes+1;
+        size_t n_nodes = mesh.nodes.size();
+        size_t nid = n_nodes+1;
 
-        for(std::set<int>::iterator it=mesh.dblBoundaryNodes.begin(); it!=mesh.dblBoundaryNodes.end(); ++it)
+        for(std::set<size_t>::iterator it=mesh.dblBoundaryNodes.begin(); it!=mesh.dblBoundaryNodes.end(); ++it)
         {
-            mesh.fromSingleToDoubleNodeIDs.insert(std::pair<int,int>(*it, nid));
+            mesh.fromSingleToDoubleNodeIDs.insert(std::pair<size_t,size_t>(*it, nid));
             nid++;
         }
 
@@ -224,7 +225,7 @@ int boundaryConditions(Mesh &mesh)
             if( (*it_tet)->matID == domainOfDoubledNodes)
             {
                 // iterate over tetras nodes
-                for(int n=0; n<(*it_tet)->nen; n++)
+                for(size_t n=0; n<(*it_tet)->nen; n++)
                 {
                     // is the current node on the boundary of doubled nodes?
                     if(mesh.dblBoundaryNodes.count((*it_tet)->nodes[n]))

@@ -13,9 +13,9 @@ bool isBigEndian()
     else      return false;
 }
 
-void swapbytes(char *array, int nelem, int elsize)
+void swapbytes(char *array, size_t nelem, int elsize)
 {
-    int sizet, sizem, i, j;
+    size_t sizet, sizem, i, j;
     char *bytea, *byteb;
     sizet = elsize;
     sizem = sizet - 1;

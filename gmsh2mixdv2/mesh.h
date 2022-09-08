@@ -18,38 +18,38 @@ class Mesh
         std::vector<Node *> nodes;
         std::vector<PhysicalGroup *> pg;
 
-        std::set<int> boundaryNodes;        //All boundary nodes
-        std::set<int> dblBoundaryNodes;     //doubled boundary nodes
-        std::set<int> dblNodeDomains;       //mixd matID for all elements with doubled nodes
-        std::map<int,int> fromSingleToDoubleNodeIDs;
+        std::set<size_t> boundaryNodes;        //All boundary nodes
+        std::set<size_t> dblBoundaryNodes;     //doubled boundary nodes
+        std::set<size_t> dblNodeDomains;       //mixd matID for all elements with doubled nodes
+        std::map<size_t,size_t> fromSingleToDoubleNodeIDs;
 
-        std::map<std::vector<int>, Triangle * > trimap;
+        std::map<std::vector<size_t>, Triangle * > trimap;
 
         Mesh(){};
         ~Mesh(){};
         void addToTriMap(std::string line)
         {
-            int eid, etype, ntags;
+            size_t eid, etype, ntags;
             std::istringstream iss(line);
             iss >> eid >> etype >> ntags;
 
             //only vertex nodes considered for sortednodes
             int nen = 3;
 
-            int dummy;
-            for (int i = 0; i < ntags; i++)
+            size_t dummy;
+            for (size_t i = 0; i < ntags; i++)
                 iss >> dummy;
 
-            std::vector<int> sortedNodes;
+            std::vector<size_t> sortedNodes;
 
-            for(int i=0; i<nen; i++)
+            for(size_t i=0; i<nen; i++)
             {
                 iss >> dummy;
                 sortedNodes.push_back(dummy);
             }
             std::sort(sortedNodes.begin(), sortedNodes.end());
 
-            trimap.insert(std::pair<std::vector<int>, Triangle *>(sortedNodes, new Triangle(line)) );
+            trimap.insert(std::pair<std::vector<size_t>, Triangle *>(sortedNodes, new Triangle(line)) );
 
 
 

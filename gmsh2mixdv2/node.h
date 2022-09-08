@@ -21,7 +21,7 @@ class Node
         Node(std::string line)
         {
             std::istringstream iss(line);
-            int id;
+            size_t id;
             iss >> id >> x >> y >> z;
         }
 

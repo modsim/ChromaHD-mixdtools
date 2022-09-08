@@ -11,21 +11,21 @@
 class Triangle
 {
     public:
-        int eID;
-        int bID;
-        int nen;
+        size_t eID;
+        size_t bID;
+        size_t nen;
 
 
-        std::vector<int> nodes;
-        std::vector<int> sortedNodes;
+        std::vector<size_t> nodes;
+        std::vector<size_t> sortedNodes;
         /* std::vector<int> adjacentTetras; */
         int adjacentTetras[2];
         int nAdjoiningTetras;
 
         /* Triangle(int eID_, int _bid_, int * nodes_); */
         Triangle(std::string line);
-        inline void setAdjacentTetra(int tetID_);
-        inline int getNeighbourTetra(int tetID_);
+        inline void setAdjacentTetra(size_t tetID_);
+        inline int getNeighbourTetra(size_t tetID_);
 
         ~Triangle();
 
@@ -36,29 +36,29 @@ class Tetrahedron
 {
     public:
         /* static std::vector<PhysicalGroup *>& pg; */
-        int eID;
-        int bID[4];
-        int matID;
-        int pgID;
-        int nen;
+        size_t eID;
+        size_t bID[4];
+        size_t matID;
+        size_t pgID;
+        size_t nen;
 
-        std::vector<int> nodes;
+        std::vector<size_t> nodes;
         std::vector<Triangle *> tris;
-        std::vector<std::vector<int>> faces;
+        std::vector<std::vector<size_t>> faces;
 
         /* Tetrahedron(int eID_, int * nodes_, int matID_); */
         Tetrahedron(std::string line);
         /* Tetrahedron(std::vector<PhysicalGroup *>& pg_); */
         ~Tetrahedron();
         /* inline void setBoundaryID(Triangle * tri); */
-        inline void setBoundaryID(std::pair<std::vector<int>,Triangle *> tripair);
+        inline void setBoundaryID(std::pair<std::vector<size_t>,Triangle *> tripair);
 };
 
 
 
 Triangle::Triangle(std::string line)
 {
-    int etype, ntags;
+    size_t etype, ntags;
     std::istringstream iss(line);
     iss >> eID >> etype >> ntags;
 
@@ -73,11 +73,11 @@ Triangle::Triangle(std::string line)
 
     // std::cout << "Found bID: " << bID << std::endl;
 
-    int dummy;
-    for (int i = 1; i < ntags; i++)
+    size_t dummy;
+    for (size_t i = 1; i < ntags; i++)
         iss >> dummy;
 
-    for(int i=0; i<nen; i++)
+    for(size_t i=0; i<nen; i++)
     {
         iss >> dummy;
         nodes.push_back(dummy);
@@ -97,7 +97,7 @@ Triangle::Triangle(std::string line)
 }
 
 
-inline void Triangle::setAdjacentTetra(int tetID_)
+inline void Triangle::setAdjacentTetra(size_t tetID_)
 {
     if(nAdjoiningTetras>1)
     {
@@ -113,7 +113,7 @@ inline void Triangle::setAdjacentTetra(int tetID_)
     nAdjoiningTetras++;
 }
 
-inline int Triangle::getNeighbourTetra(int tetid)
+inline int Triangle::getNeighbourTetra(size_t tetid)
 {
     if(adjacentTetras[0] == tetid)
         return adjacentTetras[1];
@@ -133,11 +133,11 @@ inline int Triangle::getNeighbourTetra(int tetid)
 
 Tetrahedron::Tetrahedron(std::string line)
 {
-    int etype, ntags;
+    size_t etype, ntags;
     std::istringstream iss(line);
     iss >> eID >> etype >> ntags;
 
-    for (int i=0; i<4; i++)
+    for (size_t i=0; i<4; i++)
     {
         tris.push_back(NULL);
         bID[i] = 0;
@@ -155,11 +155,11 @@ Tetrahedron::Tetrahedron(std::string line)
     //TODO: Fix this hack
     matID = pgID - 4;
 
-    int dummy;
-    for (int i = 1; i < ntags; i++)
+    size_t dummy;
+    for (size_t i = 1; i < ntags; i++)
         iss >> dummy;
 
-    for(int i=0; i<nen; i++)
+    for(size_t i=0; i<nen; i++)
     {
         iss >> dummy;
         nodes.push_back(dummy);
@@ -174,17 +174,17 @@ Tetrahedron::Tetrahedron(std::string line)
 }
 
 /* inline void Tetrahedron::setBoundaryID(Triangle * tri) */
-inline void Tetrahedron::setBoundaryID(std::pair<std::vector<int>,Triangle*> tripair)
+inline void Tetrahedron::setBoundaryID(std::pair<std::vector<size_t>,Triangle*> tripair)
 {
 
-    std::vector<std::vector<int>> faces;
+    std::vector<std::vector<size_t>> faces;
     // faces following xns ordering
     faces.push_back({this->nodes[0], this->nodes[1], this->nodes[2]});
     faces.push_back({this->nodes[0], this->nodes[1], this->nodes[3]});
     faces.push_back({this->nodes[1], this->nodes[2], this->nodes[3]});
     faces.push_back({this->nodes[0], this->nodes[2], this->nodes[3]});
 
-    for(int f=0; f<4; f++)
+    for(size_t f=0; f<4; f++)
     {
         std::sort(faces[f].begin(), faces[f].end());
         if (faces[f] == tripair.first)
