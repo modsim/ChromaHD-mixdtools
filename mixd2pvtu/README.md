@@ -6,6 +6,14 @@ The code is relatively crude, but functional.
 
 # Compilation 
 
+## Using Nix
+
+Assuming you have `nix` installed, you can just run `nix-build` in this directory to get everything installed and ready.
+
+Check out [nix-portable](https://github.com/DavHau/nix-portable).
+
+## Manual Build
+
 Prerequisites: `VTK (with MPI support), MPI`
 
 VTK can be installed with OSMESA with the following commands after downloading and unzipping the source:
@@ -61,3 +69,4 @@ The program can be configured via a text based input file or just commandline ar
 - [ ] Timing outputs for different sections of the code. Also per data write. 
 - [ ] Fix MPI int count overflows for large meshes. 
 - [ ] Write unit tests
+- [CRIT] [ ] There should be a way to read mixd in parallel and write out non-parallel pvtu files. This is necessary for bead loading because connectivity filter doesn't work in parallel
