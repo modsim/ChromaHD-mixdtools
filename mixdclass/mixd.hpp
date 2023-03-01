@@ -119,6 +119,11 @@ public:
         return _data;
     }
 
+    inline void fname(std::string newfname)
+    {
+        _fname = newfname;
+    }
+
     inline T& at(size_t row, size_t col=0) const
     {
         return _data[ row*_cols + col ];
