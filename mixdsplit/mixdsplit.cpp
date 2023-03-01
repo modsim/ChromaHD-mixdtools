@@ -45,7 +45,7 @@ int main(int argc, char **argv)
     string datafile = "data.all";
     string splitdatafile = "splitdata.all";
 
-    while ((c = getopt(argc, argv, "m:d:o:")) != -1)
+    while ((c = getopt(argc, argv, "m:d:o:n:i:")) != -1)
     {
         switch(c)
         {
@@ -57,6 +57,12 @@ int main(int argc, char **argv)
                 break;
             case 'o':
                 splitdatafile = optarg;
+                break;
+            case 'n':
+                ndf = std::atoi(optarg);
+                break;
+            case 'i':
+                idf = std::atoi(optarg);
                 break;
             default:
                 printUsage(argv[0]);
@@ -78,7 +84,10 @@ int main(int argc, char **argv)
     std::cout << "nmapfile: " << nmapfile << std::endl;
     std::cout << "datafile: " << datafile << std::endl;
     std::cout << "splitdatafile: " << splitdatafile << std::endl;
+    std::cout << "ndf: " << ndf << std::endl;
+    std::cout << "idf: " << idf << std::endl;
 
+    std::cout << "NOTE: This program only extracts the data for ONE DOF specified with -i, default i = 0.\n" << std::endl;
 
     try{
 
