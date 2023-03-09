@@ -1,0 +1,20 @@
+#Title of the simulation
+title test-case 
+outpath output
+
+elemtype tet    # or tri
+# Mesh files
+minf minf 
+mxyz mxyz
+mien mien
+
+# Data files and information
+spacetime
+data sim01/data.out sim02/data.all ...
+ndf 4               # number of degrees of freedom (variables in file)
+nrec 2              # number of records (timesteps)
+nrecstride 1        # nrec stride length
+nrecoffset 0        # nrec offset
+
+dtFile timesteps.txt
+dt 100
