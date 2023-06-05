@@ -210,7 +210,8 @@ int boundaryConditions(Mesh &mesh)
             nid++;
         }
 
-        std::cout << "now doubling nodes..." << std::flush;
+        std::cout << "domain of doubled nodes = " << domainOfDoubledNodes << std::endl;
+        std::cout << "now doubling nodes of entity "<< mesh.entity_dbl << "..." << std::flush;
 
         // iterate over the tetras to change their connectivity to doubled boundary nodes
         #pragma omp parallel for shared(mesh)
