@@ -4,6 +4,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <vector>
+#include <algorithm>
 
 #include "physicalGroup.h"
 #include "node.h"
@@ -198,13 +199,7 @@ int boundaryConditions(Mesh &mesh)
     {
 
         // set the material domain with the largest number as the one which uses the doubled nodes on the boundary
-        // TODO: mesh.dblNodeDomains.max()
-        int domainOfDoubledNodes = -1;
-        for(std::set<size_t>::iterator it=mesh.dblNodeDomains.begin(); it!=mesh.dblNodeDomains.end(); ++it)
-        {
-            if(*it > domainOfDoubledNodes)
-                domainOfDoubledNodes = *it;
-        }
+        int domainOfDoubledNodes = *std::max_element(mesh.dblNodeDomains.begin(), mesh.dblNodeDomains.end());
 
         size_t n_nodes = mesh.nodes.size();
         size_t nid = n_nodes+1;
