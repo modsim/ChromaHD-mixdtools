@@ -49,8 +49,9 @@ class Mesh
             }
             std::sort(sortedNodes.begin(), sortedNodes.end());
 
-            #pragma omp critical
             trimap.insert(std::pair<std::vector<size_t>, Triangle *>(sortedNodes, new Triangle(line)) );
+
+
 
         }
 };

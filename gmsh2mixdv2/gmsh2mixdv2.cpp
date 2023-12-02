@@ -61,16 +61,15 @@ int readfile(std::string filename, Mesh &mesh)
     std::getline(infile, section_size);
     num = (size_t) std::strtoull(section_size.c_str(), &end, 10);
 
-    mesh.nodes.reserve(num);
-    #pragma omp parallel for shared(mesh)
     for (size_t i=0; i<num; i++)
     {
         std::getline(infile,line);
         /* std::cout << line << std::endl; */
-        mesh.nodes.emplace(mesh.nodes.begin() + i, new Node(line));
+        mesh.nodes.push_back(new Node(line));
     }
     std::getline(infile, section);
     std::cout << "done!" << std::endl;
+
 
     //Elements
     std::cout << "Reading Elements... " << std::flush;
@@ -78,38 +77,29 @@ int readfile(std::string filename, Mesh &mesh)
     std::getline(infile, section_size);
     num = (size_t) std::strtoull(section_size.c_str(), &end, 10);
 
-    std::vector<std::string> lines_tet, lines_tri;
-    
-    // Read the lines from the file
     for (size_t i=0; i<num; i++)
     {
-        size_t eid, etype;
-        std::getline(infile, line);
+        std::getline(infile,line);
+        /* std::cout << line << std::endl; */
+
+        size_t eid, etype, ntags;
         std::istringstream iss(line);
-        iss >> eid >> etype;
+        iss >> eid >> etype >> ntags;
+
+        int * test;
+
+
         switch(etype)
         {
             case 2:
-            case 9: lines_tri.push_back(line); break;
+            /* case 9: mesh.tris.push_back(new Triangle(line)); break; */
+            case 9: mesh.addToTriMap(line);break;
             case 4:
-            case 11: lines_tet.push_back(line); break;
+            case 11: mesh.tets.push_back(new Tetrahedron(line)); break;
             default: std::cout << "ERROR: Unknown element type: " << etype << std::endl; return 1;
         }
-    }
 
-    #pragma omp parallel for shared(mesh)
-    for(size_t i=0; i<lines_tri.size(); i++)
-    {
-        mesh.addToTriMap(lines_tri[i]);
     }
-
-    mesh.tets.reserve(lines_tet.size());
-    #pragma omp parallel for shared(mesh)
-    for(size_t i=0; i<lines_tet.size(); i++)
-    {
-        mesh.tets.emplace(mesh.tets.begin() + i, new Tetrahedron(lines_tet[i]));
-    }
-
     std::getline(infile, section);
     std::cout << "done!" << std::endl <<std::endl;;
 
