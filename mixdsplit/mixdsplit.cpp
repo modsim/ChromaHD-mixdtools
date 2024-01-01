@@ -4,13 +4,22 @@
 #include <unistd.h>
 #include <filesystem>
 
+/* Use this program in conjunction with rmmat to split data from a full multi-domain simulation run.
+ *
+* rmmat -tet -st interstitial_mesh_dir 2 # Remove packed bed region
+* mixdsplit -m <spacetime_mesh_and_nmap_dir> -o interstitial_c.all
+* rmmat -tet -st bed-mesh 1 # Remove interstitial region
+* mixdsplit -m <spacetime_mesh_and_nmap_dir> -o bed_c.all -i 0
+* mixdsplit -m <spacetime_mesh_and_nmap_dir> -o bed_q.all -i 1
+*/
+
 void printUsage(char *binaryName)
 {
-    std::cout << binaryName << " [ -m {spacetime mesh directory} ] [-d {data.all}] [-o {splitdata.all}]" << std::endl;
+    std::cout << binaryName << " [ -m {spacetime mesh and nmap directory} ] [-d {data.all}] [-o {splitdata.all}]" << std::endl;
     std::cout << "MIXD tool to separate a chromatography data into the interstitial and particle domains" << std::endl;
     std::cout << "Run in directory with spacetime data.all. Expects to find ../mesh/{minf,nmap}" << std::endl;
     std::cout << "Automatically uses the top timeslab data. New data is semidiscrete." << std::endl;
-    std::cout << "DOES NOTE GENERATE A MIXD MESH! ONLY CREATES DATA FOR INTERSTITIAL VOLUME!" << std::endl;
+    std::cout << "DOES NOTE GENERATE A MIXD MESH! ONLY SPLITS DATA FOR THE NODES MAPPED IN NMAP!" << std::endl;
 }
 
 
