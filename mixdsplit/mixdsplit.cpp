@@ -7,17 +7,17 @@
 /* Use this program in conjunction with rmmat to split data from a full multi-domain simulation run.
  *
 * rmmat -tet -st interstitial_mesh_dir 2 # Remove packed bed region
-* mixdsplit -m <spacetime_mesh_and_nmap_dir> -o interstitial_c.all
+* mixdsplit -m <minffile> -N <nmapfile> -o interstitial_c.all
 * rmmat -tet -st bed-mesh 1 # Remove interstitial region
-* mixdsplit -m <spacetime_mesh_and_nmap_dir> -o bed_c.all -i 0
-* mixdsplit -m <spacetime_mesh_and_nmap_dir> -o bed_q.all -i 1
+* mixdsplit -m <minffile> -N <nmapfile> -o bed_c.all -i 0
+* mixdsplit -m <minffile> -N <nmapfile> -o bed_q.all -i 1
 */
 
 void printUsage(char *binaryName)
 {
-    std::cout << binaryName << " [ -m {spacetime mesh and nmap directory} ] [-d {data.all}] [-o {splitdata.all}]" << std::endl;
-    std::cout << "MIXD tool to separate a chromatography data into the interstitial and particle domains" << std::endl;
-    std::cout << "Run in directory with spacetime data.all. Expects to find ../mesh/{minf,nmap}" << std::endl;
+    std::cout << binaryName << " [-m {minffile}] [-N {nmapfile}] [-d {data.all}] [-o {splitdata.all}] [-i {idf}]" << std::endl;
+    std::cout << "MIXD tool to separate a chromatography DATA into the interstitial and particle domains." << std::endl;
+    std::cout << "Run in directory with spacetime data.all. Expects to find ../mesh/{minf,nmap} by default." << std::endl;
     std::cout << "Automatically uses the top timeslab data. New data is semidiscrete." << std::endl;
     std::cout << "DOES NOTE GENERATE A MIXD MESH! ONLY SPLITS DATA FOR THE NODES MAPPED IN NMAP!" << std::endl;
 }
@@ -47,19 +47,18 @@ int main(int argc, char **argv)
     int ndf = 2;
     int idf = 0; // NOTE: Only extracting the first dof
 
-    char c;
-
-
-    string meshdir  = "../mesh";
     string datafile = "data.all";
     string splitdatafile = "splitdata.all";
+    string minffile = "../mesh/minf";
+    string nmapfile = "../mesh/nmap";
 
+    char c;
     while ((c = getopt(argc, argv, "m:d:o:n:i:")) != -1)
     {
         switch(c)
         {
             case 'm':
-                meshdir = optarg;
+                minffile = optarg;
                 break;
             case 'd':
                 datafile = optarg;
@@ -70,6 +69,9 @@ int main(int argc, char **argv)
             case 'n':
                 ndf = std::atoi(optarg);
                 break;
+            case 'N':
+                nmapfile = optarg;
+                break;
             case 'i':
                 idf = std::atoi(optarg);
                 break;
@@ -79,8 +81,6 @@ int main(int argc, char **argv)
         }
     }
 
-    string minffile = meshdir + "/minf";
-    string nmapfile = meshdir + "/nmap";
 
     if(optind != argc)
     {
@@ -88,7 +88,6 @@ int main(int argc, char **argv)
         return 1;
     }
 
-    std::cout << "meshdir: " << meshdir << std::endl;
     std::cout << "minffile: " << minffile << std::endl;
     std::cout << "nmapfile: " << nmapfile << std::endl;
     std::cout << "datafile: " << datafile << std::endl;
