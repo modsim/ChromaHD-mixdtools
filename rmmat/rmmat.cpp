@@ -1,5 +1,8 @@
 #include "mixd.hpp"
 
+/* TODO: Update commandline handling to be more robust and dynamic.
+ * TODO: allow setting the name of the nmap file
+*/
 
 void printUsage(char *binaryName)
 {
