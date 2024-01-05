@@ -1,6 +1,6 @@
 INCLUDES=-I../mixdclass
 CXX=g++
-CXXFLAGS=-g $(INCLUDES)
+CXXFLAGS=$(INCLUDES) -O3
 
 SRC=$(wildcard *.cpp)
 OBJ := $(addsuffix .o, $(basename $(SRC)))

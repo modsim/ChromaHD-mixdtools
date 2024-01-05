@@ -1,147 +1,124 @@
+#include "mixd.hpp"
 #include <iostream>
+#include <fstream>
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
 #include <math.h>
+#include <unistd.h>
+#include <vector>
 
-
-
-
-
-bool isBigEndian()
+void print_usage(char* binaryName)
 {
-    short word = 0x4321;
-    if ((* (char*) & word) != 0x21) return true;
-    else      return false;
+    std::cout << "Norm MIXD: Compare two binary data files" << std::endl;
+    std::cout << "Usage: " << binaryName << " <ref mixd data> <mixd data> -n <ndf>" << std::endl;
 }
-
-void swapbytes(char *array, int nelem, int elsize)
-{
-    register int sizet, sizem, i, j;
-    char *bytea, *byteb;
-    sizet = elsize;
-    sizem = sizet - 1;
-    bytea = (char*)malloc(sizet);
-    byteb = (char*)malloc(sizet);
-
-    for (i=0; i<nelem; i++)
-    {
-        memcpy((void *)bytea, (void *)(array+i*sizet), sizet);
-        for (j = 0; j < sizet; j++) byteb[j] = bytea[sizem - j];
-            memcpy((void *)(array+i*sizet), (void *)byteb, sizet);
-    }
-
-    free(bytea);
-    free(byteb);
-}
-
-
-
-/* a tool to dump contents of binary MIXD files to the console */
 
 int main(int argc, char **argv)
 {
+    int option;
+    int ndf = 0; // number of degrees of freedom == number of columns in mixd data
+    int its = 0; // timestep to read
+    std::string minffile = "../mesh/minf";
 
-    if(argc != 3)
-    {
-        std::cout << "Dump MIXD" << std::endl;
-        std::cout << "Usage: " << argv[0] << " <number of items per row> <MIXD file>" << std::endl;
+    bool spacetime = false;
+
+    // Use getopt to parse command-line arguments
+    while ((option = getopt(argc, argv, "t:m:n:s")) != -1) {
+        switch (option) {
+            case 't':
+                its = std::stoi(optarg);
+                break;
+            case 'n':
+                ndf = std::stoi(optarg);
+                break;
+            case 'm':
+                minffile = optarg;
+                break;
+            case 's':
+                spacetime=true;
+                break;
+            case '?':
+                // Handling unknown options or missing arguments
+                if (optopt == 'n') {
+                    std::cerr << "Option -n requires an argument.\n";
+                } else {
+                    std::cerr << "Unknown option: -" << char(optopt) << "\n";
+                }
+                return 1;
+            default:
+                // Unexpected case
+                std::cerr << "Unexpected case!" << std::endl;
+                return 1;
+        }
+    }
+
+    // Check if two file arguments are provided
+    if (argc - optind != 2) {
+        std::cerr << "Usage: " << argv[0] << " <file1> <file2> -n <int>\n";
         return 1;
     }
 
-    /* const char type = argv[1][0]; */
+    // Access the file names after the options
+    std::string file1 = argv[optind];
+    std::string file2 = argv[optind + 1];
 
-	int itsize = 8; //double
+    long ne, nn, nnspace;
+    mixd::readminf(minffile, &nn, &ne);
 
-	/* switch(type) */
-	/* { */
-	/* 	case 'i':   itsize = 4; break; */
-	/* 	case 'f':   itsize = 4; break; */
-	/* 	case 'd':   itsize = 8; break; */
-
-		/* default: */
-		/* 	std::cout << "Error: illegal data type: " << argv[1] << std::endl; */
-		/* 	return 1; */
-	/* } */
-
-	const int nitems = atoi(argv[1]);
-
-	const char *fname = argv[2];
-
-    std::cout << "Reading file " << fname << std::endl;
-
-
-
-    FILE *fid = fopen(fname, "rb");
-
-    if (fid == NULL)
+    if(spacetime)
     {
-        printf("\nCould not open %s\n", fname);
-        return 1;
+        if(nn % 2 != 0)
+        {
+            throw mixd::MixdException("space-time mesh must have even number of nodes!");
+        }
+        nnspace = nn/2;
+    }
+    else
+    nnspace = nn;
+
+
+    int stu_offset = 0;
+    if (spacetime)
+        stu_offset = nnspace;
+
+    // Display parsed values
+    std::cout << "mixd ref data file: " << file1 << std::endl;
+    std::cout << "mixd cmp data file: " << file2 << std::endl;
+    std::cout << "mixd minf file: " << minffile << std::endl;
+    std::cout << "spacetime: " << spacetime << std::endl;
+    std::cout << "ndf: " << ndf << std::endl;
+    std::cout << "its: " << its << std::endl;
+    std::cout << "nn: " << nn << std::endl;
+    std::cout << "nnspace: " << nnspace << std::endl;
+    std::cout << "stu_offset: " << stu_offset << std::endl;
+
+    std::vector<double> vec_norms(ndf, 0.0);
+    mixd::MixdFile<double> ref(file1, nn, ndf, false);
+    mixd::MixdFile<double> cmp(file2, nn, ndf, false);
+
+    ref.read(its);
+    cmp.read(its);
+
+    for(int i=stu_offset; i<nn; i++)
+    {
+        for(int j=0; j<ndf; j++) 
+        {
+            vec_norms[j] += pow((cmp(i,j) - ref(i,j)), 2);
+        }
     }
 
-
-
-    char *buf = (char*)malloc(nitems * itsize);
-
-
-	bool isBigEnd = isBigEndian();
-
-    double l2norm[nitems], infnorm[nitems];
-
-    for(int i=0; i< nitems; i++)
+    std::ofstream ofile("normmixd.csv");
+    for(int idf=0; idf<ndf; idf++)
     {
-        l2norm[i] = 0;
-        infnorm[i] = 0;
-
+        vec_norms[idf] /= nnspace;
+        vec_norms[idf] = sqrt(vec_norms[idf]);
+        std::cout << std::scientific;
+        std::cout << "idf " << idf << ": " << vec_norms[idf] << std::endl;
+        ofile << idf << ", " << vec_norms[idf] << std::endl;
     }
+    ofile.close();
 
-
-	std::cout << std::endl;
-
-	int cnt = 0;
-
-
-    while(true)
-	{
-
-		int itemsread = fread((void*)buf, itsize, nitems, fid);
-
-		if(itemsread != nitems) break;
-
-		if(!isBigEnd)
-			swapbytes(buf, nitems, itsize);
-
-
-		cnt++;
-		/* printf("%4d", cnt); */
-
-
-		for(char *it=buf; it<buf+nitems*itsize; it+=itsize)
-		{
-		    /* double val = *((double*)it);   printf("%30.16f", val); */
-            l2norm[(it-buf)/itsize] += *((double*)it)**((double*)it);
-            if(*((double*)it) > infnorm[(it-buf)/itsize])
-                infnorm[(it-buf)/itsize] = *((double*)it);
-		}
-
-		/* std::cout << std::endl; */
-
-
-
-	}
-
-    printf("\tL2\t\tL-inf\n");
-    for(int i=0; i< nitems; i++)
-	{
-        l2norm[i] = sqrt(l2norm[i]);
-		printf("[%d]: %e\t%e\n", i, l2norm[i], infnorm[i] );
-		/* std::cout << l2norm[i] << std::endl; */
-	}
-
-    free(buf);
-
-	fclose(fid);
 
     return 0;
 }
