@@ -53,7 +53,7 @@ int main(int argc, char **argv)
     string nmapfile = "../mesh/nmap";
 
     char c;
-    while ((c = getopt(argc, argv, "m:d:o:n:i:")) != -1)
+    while ((c = getopt(argc, argv, "N:m:d:o:n:i:")) != -1)
     {
         switch(c)
         {
