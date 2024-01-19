@@ -4,9 +4,9 @@
 void printUsage(char *binaryName)
 {
     std::cout << "MIXD tool to map semi-discrete flow solution to complete column" << std::endl;
-    std::cout << "Place the binary in the directory with full mesh minf" << std::endl;
-    std::cout << "Usage: " << binaryName << " [-tri|-tet|-qua|-hex] <flow mesh dir> <flow solve dir>" << std::endl;
-    std::cout << "This tool generates the file flowfield in the directory of its call." << std::endl;
+    std::cout << "Run the binary in the directory with full mesh minf" << std::endl;
+    std::cout << "Usage: " << binaryName << " [-tri|-tet|-qua|-hex] <flow mesh dir> <flow solve dir> <output flowfield dir>" << std::endl;
+    std::cout << "This tool assumes nmap file between full mesh and flow mesh exists in the full mesh directory, and is named nmap" << std::endl;
 }
 
 
@@ -15,16 +15,16 @@ int main(int argc, char **argv)
     using namespace std;
     using namespace mixd;
 
-    if(argc != 4)
     {
+        if(argc != 5)
         printUsage(argv[0]);
         return 1;
     }
 
     string etype(argv[1]);
     string meshdir(argv[2]);
-
     string solvdir(argv[3]);
+    string outdir(argv[4]);
 
 
     int nsd = 0;
@@ -71,7 +71,7 @@ int main(int argc, char **argv)
     long ne, nn;
     readminf("minf", &nn, &ne);
 
-    MixdFile<double> flow("flowfield", nn, nsd+1);
+    MixdFile<double> flow(outdir+"/flowfield", nn, nsd+1);
     flow.init();
 
     MixdFile<int> nmap("nmap", nn);
