@@ -15,8 +15,8 @@ int main(int argc, char **argv)
     using namespace std;
     using namespace mixd;
 
+    if(argc != 5)
     {
-        if(argc != 5)
         printUsage(argv[0]);
         return 1;
     }
