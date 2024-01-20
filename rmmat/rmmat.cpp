@@ -7,7 +7,7 @@
 void printUsage(char *binaryName)
 {
     std::cout << "MIXD tool to remove material from mesh" << std::endl;
-    std::cout << "Usage: " << binaryName << " [-tri|-tet|-qua|-hex] [-sd|-st] <output directory> <mat1 to remove> [<mat2 to remove>]" << std::endl;
+    std::cout << "Usage: " << binaryName << " [-tri|-tet|-qua|-hex] [-sd|-st] <output directory> <mat to remove> [nmapfile]" << std::endl;
     std::cout << "The -sd/-st parameter specifies whether the initial mesh is semi-discrete or space-time." << std::endl;
     std::cout << "The newly generated mesh (with material removed) will always be semi-discrete!" << std::endl;
 }
@@ -26,14 +26,12 @@ int main(int argc, char **argv)
 
     string etype(argv[1]);
     string sdst(argv[2]);
-
     string outdir(argv[3]);
-
     const int rmmat1 = atoi(argv[4]);
 
-    int rmmat2 = -999;
+    string nmapfile("nmap");
     if(argc == 6)
-        rmmat2 = atoi(argv[5]);
+        nmapfile = argv[5];
 
     int nen = 0;
     int nef = 0;
@@ -112,7 +110,7 @@ int main(int argc, char **argv)
     MixdFile<int> mmat("./mmat", ne);
     mmat.read();
 
-    MixdFile<int> nmap("./nmap", nn);
+    MixdFile<int> nmap(nmapfile, nn);
     nmap.init();
 
 
@@ -121,7 +119,7 @@ int main(int argc, char **argv)
     long nn_new = 0;
     for(long i=0; i<ne; i++)
     {
-        if(mmat(i) != rmmat1 && mmat(i) != rmmat2)
+        if(mmat(i) != rmmat1)
         {
             ne_new++;
 
@@ -154,7 +152,7 @@ int main(int argc, char **argv)
     long eid = 0;
     for(long i=0; i<ne; i++)
     {
-        if(mmat(i) != rmmat1 && mmat(i) != rmmat2)
+        if(mmat(i) != rmmat1)
         {
             for(int j=0; j<nen; j++)
                 mien_new(eid,j) = nmap(mien(i,j)-1);
