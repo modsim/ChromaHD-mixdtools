@@ -109,16 +109,24 @@ int main(int argc, char **argv)
     }
 
     std::ofstream ofile("normmixd.csv");
+
+    std::cout << "L2-norm, normalized-L2-norm, refmin, refmax, cmpmin, cmpmax" << std::endl;
+    ofile << "L2-norm, normalized-L2-norm, refmin, refmax, cmpmin, cmpmax" << std::endl;
+
     for(int idf=0; idf<ndf; idf++)
     {
         vec_norms[idf] /= nnspace;
         vec_norms[idf] = sqrt(vec_norms[idf]);
+        double relNorm = vec_norms[idf] / (ref.maxcol(idf) - ref.mincol(idf));
         std::cout << std::scientific;
-        std::cout << "idf " << idf << ": " << vec_norms[idf] << std::endl;
-        ofile << idf << ", " << vec_norms[idf] << std::endl;
+        std::cout << vec_norms[idf] << ", " << relNorm << ", ";
+        std::cout << ref.mincol(idf) << ", " << ref.maxcol(idf) << ", ";
+        std::cout << cmp.mincol(idf) << ", " << cmp.maxcol(idf) << std::endl;
+        ofile << vec_norms[idf] << ", " << relNorm << ", ";
+        ofile << ref.mincol(idf) << ", " << ref.maxcol(idf) << ", ";
+        ofile << cmp.mincol(idf) << ", " << cmp.maxcol(idf) << std::endl;
     }
     ofile.close();
-
 
     return 0;
 }
