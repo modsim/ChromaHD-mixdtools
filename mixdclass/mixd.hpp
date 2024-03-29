@@ -12,6 +12,7 @@
 #include <utility>
 #include <vector>
 #include <algorithm>
+#include <limits>
 
 #ifdef PARALLEL
 #include <mpi.h>
@@ -156,6 +157,31 @@ public:
         return(*std::max_element(_data, _data + _rows * _cols -1));
     }
 
+    inline T maxcol(size_t iCol)
+    {
+        T maxValue = std::numeric_limits<T>::min();
+        for(size_t i=iCol; i<_rows*_cols; i+=_cols)
+        {
+            if(_data[i] > maxValue)
+            {
+                maxValue = _data[i];
+            }
+        }
+        return maxValue;
+    }
+
+    inline T mincol(size_t iCol)
+    {
+        T minValue = std::numeric_limits<T>::max();
+        for(size_t i=iCol; i<_rows*_cols; i+=_cols)
+        {
+            if(_data[i] < minValue)
+            {
+                minValue = _data[i];
+            }
+        }
+        return minValue;
+    }
 
     void transpose()
     {
